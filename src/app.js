@@ -1,10 +1,13 @@
-const express = require("express");
-const morgan = require("morgan");
-const helmet = require("helmet");
-const compression = require('compression');
-const app = express();
+import morgan from "morgan";
+import helmet from "helmet";
+import compression from "compression";
+import express from "express";
+import router from './routes'
 
+const app = express();
 app.use(morgan("dev"));
+
+app.use(express.json())
 
 // strict transport security
 const reqDuration = 2629746000;
@@ -37,9 +40,7 @@ app.use(
 // downsize response
 app.use(compression());
 
-
-
 // init routes
-app.use('', require('./routes'))
+app.use('', router)
 
 module.exports = app;
