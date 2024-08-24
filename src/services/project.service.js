@@ -1,25 +1,23 @@
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 import { db } from "@/core/firebase.config";
-import { projectStoreSchema } from "@/models/project.model";
+import projectModel from "@/models/project.model";
 
 const ProjectService = {
-    store: async (data) => {
-        const { error, value } = projectStoreSchema.validate(data);
-
-        if (error) {
-            throw new Error(`Validation error: ${error.details[0].message}`);
-        }
-
-        try {
-            const docRef = await addDoc(collection(db, "project"), value);
-
-            return docRef
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    }, 
-    update: async (data) => {
+    get: async (params) => {
+        const { error, data } = projectModel.projectGetSchema.validate(params);
+    },
+    getList: async (params) => {
+        const { error, data } = projectModel.projectGetSchema.validate(params);
+    },
+    store: async (params) => {
+        const { error, data } = projectModel.projectStoreSchema.validate(params);
+    },
+    update: async (params) => {
+        const { error, data } = projectModel.projectUpdateSchema.validate(params);
+    },
+    destroy: async (params) => {
+        const { error, data } = projectModel.projectDestroySchema.validate(params);
     }
 }
 
