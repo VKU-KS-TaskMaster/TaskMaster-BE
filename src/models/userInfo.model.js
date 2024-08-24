@@ -1,29 +1,27 @@
 import Joi from "joi"
 
 const userInfoGetSchema = Joi.object({
-    code: Joi.string().optional(),
-    first_name: Joi.string().optional(),
-    last_name: Joi.string().optional(),
+    search: Joi.string().optional(),
 })
 
 const userInfoStoreSchema = Joi.object({
     user_name: Joi.string().required(),
+    // email_address: Joi.string().optional(),
     code: Joi.string().optional(),
     first_name: Joi.string().optional(),
     last_name: Joi.string().optional(),
 })
 
 const userInfoUpdateSchema = Joi.object({
+    user_name: Joi.string().optional(),
     code: Joi.string().optional(),
-    email_address: Joi.string().optional(),
-    status: Joi.number().integer().optional(),
-    type: Joi.number().integer().optional(),
-    description: Joi.string().optional(),
+    first_name: Joi.string().optional(),
+    last_name: Joi.string().optional(),
 })
 
 const userInfoUpdatePasswordSchema = Joi.object({
     pass_word: Joi.string().required(),
-    verified_pass_word: Joi.string().required(),
+    repeat_pass_word: Joi.string().required(),
 })
 
 const userInfoUpdateStatusSchema = Joi.object({

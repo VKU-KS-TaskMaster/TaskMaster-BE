@@ -12,7 +12,8 @@ const authSignInDefaultSchema = Joi.object({
 
 const authSignUpDefaultSchema = Joi.object({
     user_name: Joi.string().required(),
-    pass_word: Joi.string().pattern(passwordPattern).required()
+    pass_word: Joi.string().pattern(passwordPattern).required(),
+    repeat_pass_word: Joi.string().pattern(passwordPattern).required()
 })
 
 const authSignInGoogleSchema = Joi.object({
