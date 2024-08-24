@@ -1,9 +1,9 @@
-import ProjectService from "@/services/project.service";
+import TaskService from "@/services/task.service";
 
-const ProjectController = {
+const TaskController = {
     get: async (req, res, next) => {
         try {
-            const message = await ProjectService.get(req.body);
+            const message = await TaskService.get(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -11,7 +11,7 @@ const ProjectController = {
     },
     getList: async (req, res, next) => {
         try {
-            const message = await ProjectService.getList(req.body);
+            const message = await TaskService.getList(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -19,7 +19,7 @@ const ProjectController = {
     },
     store: async (req, res, next) => {
         try {
-            const message = await ProjectService.store(req.body);
+            const message = await TaskService.store(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -27,7 +27,7 @@ const ProjectController = {
     },
     update: async (req, res, next) => {
         try {
-            const message = await ProjectService.update(req.body);
+            const message = await TaskService.update(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -35,7 +35,7 @@ const ProjectController = {
     },
     destroy: async (req, res, next) => {
         try {
-            const message = await ProjectService.destroy(req.body);
+            const message = await TaskService.destroy(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -43,4 +43,4 @@ const ProjectController = {
     },
 }
 
-export default ProjectController
+export default TaskController

@@ -1,9 +1,9 @@
-import ProjectService from "@/services/project.service";
+import MilestoneService from "@/services/milestone.service";
 
-const ProjectController = {
+const MilestoneController = {
     get: async (req, res, next) => {
         try {
-            const message = await ProjectService.get(req.body);
+            const message = await MilestoneService.get(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -11,7 +11,7 @@ const ProjectController = {
     },
     getList: async (req, res, next) => {
         try {
-            const message = await ProjectService.getList(req.body);
+            const message = await MilestoneService.getList(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -19,7 +19,7 @@ const ProjectController = {
     },
     store: async (req, res, next) => {
         try {
-            const message = await ProjectService.store(req.body);
+            const message = await MilestoneService.store(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -27,7 +27,7 @@ const ProjectController = {
     },
     update: async (req, res, next) => {
         try {
-            const message = await ProjectService.update(req.body);
+            const message = await MilestoneService.update(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -35,7 +35,7 @@ const ProjectController = {
     },
     destroy: async (req, res, next) => {
         try {
-            const message = await ProjectService.destroy(req.body);
+            const message = await MilestoneService.destroy(req.body);
             return res.send(message);
         } catch (errors) {
             next(errors);
@@ -43,4 +43,4 @@ const ProjectController = {
     },
 }
 
-export default ProjectController
+export default MilestoneController
