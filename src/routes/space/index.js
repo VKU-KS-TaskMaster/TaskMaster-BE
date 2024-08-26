@@ -9,4 +9,6 @@ router.post("/", SpaceController.store);
 router.put("/:key", SpaceController.update);
 router.delete("/:key", SpaceController.destroy);
 
+router.post("/change_status/:key", SpaceController.changeStatus);
+
 module.exports = router;

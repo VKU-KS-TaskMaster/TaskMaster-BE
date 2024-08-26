@@ -1,7 +1,7 @@
 import { SPACE_STATUS_DELETED, SPACE_STATUS_PENDING } from "@/core/enums/SpaceStatusEnum";
 import { db } from "@/core/firebase.config";
-import { spaceDestroySchema, spaceGetListSchema, spaceGetSchema, spaceStoreSchema, spaceUpdateSchema } from "@/models/space.model";
-import { collection, setDoc, doc, query, where, getDocs, or, and, addDoc, getDoc, updateDoc } from "firebase/firestore";
+import { spaceChangeStatusSchema, spaceDestroySchema, spaceGetListSchema, spaceGetSchema, spaceStoreSchema, spaceUpdateSchema } from "@/models/space.model";
+import { collection, doc, query, where, getDocs, or, and, addDoc, getDoc, updateDoc } from "firebase/firestore";
 
 const SpaceService = {
     get: async (params) => {
@@ -98,7 +98,25 @@ const SpaceService = {
 
             return (await getDoc(docSnap.docs[0].ref)).data()
         }
-    }
+    },
+
+    changeStatus: async (params, body) => {
+        const { error, value } = spaceChangeStatusSchema.validate({...params, ...body});
+
+        const docRef = collection(db, "space");
+
+        const docQuery = query(docRef, where("code", "==", value.key))
+
+        const docSnap = await getDocs(docQuery);
+
+        if (!docSnap.empty) {
+            await updateDoc(docSnap.docs[0].ref, {
+                status: value.status
+            })
+
+            return (await getDoc(docSnap.docs[0].ref)).data()
+        }
+    },
 }
 
 export default SpaceService

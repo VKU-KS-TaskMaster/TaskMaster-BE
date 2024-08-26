@@ -1,3 +1,4 @@
+import SpaceStatusEnumArr from "@/core/enums/SpaceStatusEnum"
 import Joi from "joi"
 
 const spaceGetSchema = Joi.object({
@@ -25,7 +26,12 @@ const spaceUpdateSchema = Joi.object({
 })
 
 const spaceDestroySchema = Joi.object({
-    code: Joi.number().integer().required(),
+    key: Joi.string().required(),
+})
+
+const spaceChangeStatusSchema = Joi.object({
+    key: Joi.string().required(),
+    status: Joi.number().valid(...SpaceStatusEnumArr).required()
 })
 
 export {
@@ -34,4 +40,6 @@ export {
     spaceStoreSchema,
     spaceUpdateSchema,
     spaceDestroySchema,
+
+    spaceChangeStatusSchema
 }
