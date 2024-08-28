@@ -3,16 +3,16 @@ import SpaceService from "@/services/space.service";
 const SpaceController = {
     get: async (req, res, next) => {
         try {
-            const message = await SpaceService.get(req.body);
-            return res.send(message);
+            const message = await SpaceService.get(req.params);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    getList: async (req, res, next) => {
+    search: async (req, res, next) => {
         try {
-            const message = await SpaceService.getList(req.body);
-            return res.send(message);
+            const message = await SpaceService.search(req.query);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
@@ -20,23 +20,32 @@ const SpaceController = {
     store: async (req, res, next) => {
         try {
             const message = await SpaceService.store(req.body);
-            return res.send(message);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
     update: async (req, res, next) => {
         try {
-            const message = await SpaceService.update(req.body);
-            return res.send(message);
+            const message = await SpaceService.update(req.params, req.body);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
     destroy: async (req, res, next) => {
         try {
-            const message = await SpaceService.destroy(req.body);
-            return res.send(message);
+            const message = await SpaceService.destroy(req.params);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    },
+
+    changeStatus: async (req, res, next) => {
+        try {
+            const message = await SpaceService.changeStatus(req.params, req.body);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }

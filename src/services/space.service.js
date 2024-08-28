@@ -1,69 +1,91 @@
-import { SPACE_STATUS_DELETED, SPACE_STATUS_PENDING } from "@/core/enums/SpaceStatusEnum";
+import { SPACE_STATUS_DELETED } from "@/core/enums/SpaceStatusEnum";
 import { db } from "@/core/firebase.config";
-import { spaceChangeStatusSchema, spaceDestroySchema, spaceGetListSchema, spaceGetSchema, spaceStoreSchema, spaceUpdateSchema } from "@/models/space.model";
+import { generateCode } from "@/core/helper";
+import redisClient from "@/core/redisCache.config";
+import ResponseTrait from "@/core/responseTrait";
+import { spaceCacheKey, spaceChangeStatusSchema, spaceDestroySchema, spaceGetListSchema, spaceGetSchema, spaceKey, spaceStoreSchema, spaceUpdateSchema } from "@/models/space.model";
 import { collection, doc, query, where, getDocs, or, and, addDoc, getDoc, updateDoc } from "firebase/firestore";
 
 const SpaceService = {
     get: async (params) => {
         const { error, value } = spaceGetSchema.validate(params);
 
+        if (error) {
+            return ResponseTrait.error(error)
+        }
+
+        const cacheKey = spaceCacheKey.replace(":code", value.key)
+        const resData = redisClient.hGet(cacheKey)
+        if (resData) return ResponseTrait.success(resData)
+
         const docRef = collection(db, "space");
-
         const docQuery = query(docRef, where("code", "==", value.key))
-
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) {
-            const spaceData = docSnap.docs[0].data();
-            return spaceData;
-        }
+        if (docSnap.empty) return ResponseTrait.error('No such Space!')
+
+        resData = docSnap.docs[0].data();
+        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+
+        return ResponseTrait.success(resData);
     },
     search: async (params) => {
-        const userIdArr = params.user_id?.split(',')
-        params.user_id = userIdArr
-        const statusArr = params.status?.split(',')
-        params.status = statusArr
+        params.status = params.status?.split(',')
 
         const { error, value } = spaceGetListSchema.validate(params);
-        const { key } = value
+        const { q, status } = value
+
+        if (error) {
+            return ResponseTrait.error(error)
+        }
 
         const docRef = collection(db, "space");
         let docQuery = query(docRef)
 
-        if (key && key.trim().length > 0) {
+        if (q && q.trim().length > 0) {
             const attrs = ['code', 'name', 'description']
 
             docQuery = query(docQuery, or(...attrs.map(a => and(
-                where(a, ">=", key),
-                where(a, "<=", key + '\uf8ff')
+                where(a, ">=", q),
+                where(a, "<=", q + '\uf8ff')
             ))))
         }
 
-        const paramArr = ['user_id', 'status']
-        paramArr.map(p => {
-            if(value[p] && value[p].length > 0) {
-                docQuery = query(docQuery, where(p, 'in', value[p]))
-            }
-        })
+        if (status && status.length > 0) {
+            docQuery = query(docQuery, where('status', 'in', status))
+        }
 
         const docSnap = await getDocs(docQuery);
+        const resData = docSnap.docs.map(doc => doc.data())
 
-        return docSnap.docs.map(doc => doc.data());
+        return ResponseTrait.success(resData);
     },
     store: async (params) => {
         const { error, value } = spaceStoreSchema.validate(params);
+        if (error) {
+            return ResponseTrait.error(error)
+        }
+
+        const dateNow = new Date()
+        value.code = generateCode(spaceKey, dateNow, value.name)
 
         const spaceRef = collection(db, "space");
 
-        const spaceSnap = await addDoc(doc(spaceRef), {
+        const resData = await addDoc(doc(spaceRef), {
             ...value,
-            status: SPACE_STATUS_PENDING,
+            // status: SPACE_STATUS_PENDING,
+            created_at: dateNow
         });
 
-        return spaceSnap
+        redisClient.hSet(spaceCacheKey.replace(":code", value.code), JSON.stringify(resData))
+
+        return ResponseTrait.success(resData)
     },
     update: async (params, body) => {
-        const { error, value } = spaceUpdateSchema.validate({...params, ...body});
+        const { error, value } = spaceUpdateSchema.validate({ ...params, ...body });
+        if (error) {
+            return ResponseTrait.error(error)
+        }
 
         const docRef = collection(db, "space");
 
@@ -71,17 +93,25 @@ const SpaceService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) {
-            delete value.key
-            await updateDoc(docSnap.docs[0].ref, {
-                ...value
-            })
+        if (docSnap.empty) ResponseTrait.error('No such Space!')
 
-            return (await getDoc(docSnap.docs[0].ref)).data()
-        }
+        delete value.key
+        await updateDoc(docSnap.docs[0].ref, {
+            ...value,
+            updated_at: new Date()
+        })
+
+        const resData = (await getDoc(docSnap.docs[0].ref)).data()
+
+        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+
+        return ResponseTrait.success(resData)
     },
     destroy: async (params) => {
         const { error, value } = spaceDestroySchema.validate(params);
+        if (error) {
+            return ResponseTrait.error(error)
+        }
 
         const docRef = collection(db, "space");
 
@@ -89,19 +119,25 @@ const SpaceService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) {
-            delete value.key
-            await updateDoc(docSnap.docs[0].ref, {
-                status: SPACE_STATUS_DELETED,
-                deleted_at: new Date()
-            })
+        if (docSnap.empty) ResponseTrait.error('No such Space!')
 
-            return (await getDoc(docSnap.docs[0].ref)).data()
-        }
+        delete value.key
+        await updateDoc(docSnap.docs[0].ref, {
+            status: SPACE_STATUS_DELETED,
+            updated_at: new Date(),
+            deleted_at: new Date()
+        })
+        const resData = (await getDoc(docSnap.docs[0].ref)).data()
+        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+
+        return ResponseTrait.success(resData)
     },
 
     changeStatus: async (params, body) => {
-        const { error, value } = spaceChangeStatusSchema.validate({...params, ...body});
+        const { error, value } = spaceChangeStatusSchema.validate({ ...params, ...body });
+        if (error) {
+            return ResponseTrait.error(error)
+        }
 
         const docRef = collection(db, "space");
 
@@ -109,13 +145,21 @@ const SpaceService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) {
-            await updateDoc(docSnap.docs[0].ref, {
-                status: value.status
-            })
+        if (docSnap.empty) ResponseTrait.error('No such Space!')
 
-            return (await getDoc(docSnap.docs[0].ref)).data()
+        const dataUpdate = {
+            status: value.status,
+            updated_at: new Date()
         }
+
+        if (value.status === SPACE_STATUS_DELETED) dataUpdate.deleted_at = new Date()
+
+        await updateDoc(docSnap.docs[0].ref, dataUpdate)
+        
+        const resData = (await getDoc(docSnap.docs[0].ref)).data()
+        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+
+        return ResponseTrait.success(resData)
     },
 }
 
