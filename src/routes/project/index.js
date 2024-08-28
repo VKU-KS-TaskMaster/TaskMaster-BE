@@ -4,7 +4,13 @@ import ProjectController from "@/controllers/project.controller";
 
 const router = express.Router();
 
-router.post("/store", ProjectController.store);
-router.post("/update", ProjectController.update);
+router.get("/:key", ProjectController.get);
+router.get("/", ProjectController.search);
+router.post("/", ProjectController.store);
+router.put("/:key", ProjectController.update);
+router.delete("/:key", ProjectController.destroy);
+
+router.post("/change_status/:key", ProjectController.changeStatus)
+router.get("/search_members/:key", ProjectController.searchMembers)
 
 module.exports = router;
