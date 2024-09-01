@@ -1,4 +1,3 @@
-import ProjectMemberTypeEnumArr from "@/core/enums/project/ProjectMemberTypeEnum"
 import ProjectStatusEnumArr from "@/core/enums/project/ProjectStatusEnum"
 import Joi from "joi"
 

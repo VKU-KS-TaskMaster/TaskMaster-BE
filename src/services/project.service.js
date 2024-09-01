@@ -117,14 +117,14 @@ const ProjectService = {
     },
     update: async (params, body) => {
         const { error, value } = projectUpdateSchema.validate({ ...params, ...body });
-        const { members, teams } = value
+        const { key, members, teams } = value
         if (error) {
             return ResponseTrait.error(error)
         }
 
         const docRef = collection(db, "project");
 
-        const docQuery = query(docRef, where("code", "==", value.key))
+        const docQuery = query(docRef, where("code", "==", key))
 
         const docSnap = await getDocs(docQuery);
 
@@ -143,7 +143,7 @@ const ProjectService = {
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(projectCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        redisClient.hSet(projectCacheKey.replace(":code", key), JSON.stringify(resData))
 
         return resData
     },
@@ -153,7 +153,7 @@ const ProjectService = {
             return ResponseTrait.error(error)
         }
 
-        const docRef = collection(db, "space");
+        const docRef = collection(db, "prọect");
 
         const docQuery = query(docRef, where("code", "==", value.key))
 
@@ -180,7 +180,7 @@ const ProjectService = {
             return ResponseTrait.error(error)
         }
 
-        const docRef = collection(db, "space");
+        const docRef = collection(db, "project");
 
         const docQuery = query(docRef, where("code", "==", value.key))
 
