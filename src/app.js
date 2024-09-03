@@ -1,8 +1,9 @@
-import morgan from "morgan";
-import helmet from "helmet";
 import compression from "compression";
+import cors from 'cors';
 import express from "express";
-import router from './routes'
+import helmet from "helmet";
+import morgan from "morgan";
+import router from './routes';
 
 const app = express();
 app.use(morgan("dev"));
@@ -39,6 +40,9 @@ app.use(
 
 // downsize response
 app.use(compression());
+
+// Config CORS
+app.use(cors());
 
 // init routes
 app.use('', router)
