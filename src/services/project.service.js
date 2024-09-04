@@ -1,11 +1,11 @@
-import { addDoc, and, collection, doc, getDoc, getDocs, or, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
 
 import { db } from "@/core/firebase.config";
 import { projectDestroySchema, projectGetListSchema, projectGetSchema, projectCacheKey, projectStoreSchema, projectUpdateSchema, projectKey, projectSearchMembersSchema } from "@/models/project.model";
 import ResponseTrait from "@/core/responseTrait";
-import { PROJECT_STATUS_DELETED, PROJECT_STATUS_PENDING } from "@/core/enums/project/ProjectStatusEnum";
+import { PROJECT_STATUS_DELETED } from "@/enums/project/ProjectStatusEnum";
 import redisClient from "@/core/redisCache.config";
-import { generateCode, simpleHashStringToNumber } from "@/core/helper";
+import { generateCode } from "@/core/helper";
 
 const ProjectService = {
     get: async (params) => {

@@ -1,4 +1,4 @@
-import { SPACE_STATUS_DELETED } from "@/core/enums/SpaceStatusEnum";
+import { SPACE_STATUS_DELETED } from "@/enums/SpaceStatusEnum";
 import { db } from "@/core/firebase.config";
 import { generateCode } from "@/core/helper";
 import redisClient from "@/core/redisCache.config";

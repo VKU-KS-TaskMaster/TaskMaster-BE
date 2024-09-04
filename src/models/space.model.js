@@ -1,4 +1,4 @@
-import SpaceStatusEnumArr from "@/core/enums/SpaceStatusEnum"
+import SpaceStatusEnumArr from "@/enums/SpaceStatusEnum"
 import Joi from "joi"
 
 const spaceKey = "space"
