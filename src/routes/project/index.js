@@ -10,7 +10,7 @@ router.post("/", ProjectController.store);
 router.put("/:key", ProjectController.update);
 router.delete("/:key", ProjectController.destroy);
 
-router.post("/change_status/:key", ProjectController.changeStatus)
+router.post("/update_members/:key", ProjectController.updateMembers)
 router.get("/search_members/:key", ProjectController.searchMembers)
 
 module.exports = router;

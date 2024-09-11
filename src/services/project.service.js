@@ -1,11 +1,11 @@
 import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
 
-import { db } from "@/core/firebase.config";
-import { projectDestroySchema, projectGetListSchema, projectGetSchema, projectCacheKey, projectStoreSchema, projectUpdateSchema, projectKey, projectSearchMembersSchema } from "@/models/project.model";
-import ResponseTrait from "@/core/responseTrait";
+import { projectDestroySchema, projectGetListSchema, projectGetSchema, projectCacheKey, projectStoreSchema, projectUpdateSchema, projectKey, projectSearchMembersSchema, projectUpdateMembersSchema } from "@/models/project.model";
 import { PROJECT_STATUS_DELETED } from "@/enums/project/ProjectStatusEnum";
-import redisClient from "@/core/redisCache.config";
+import { db } from "@/core/firebase.config";
 import { generateCode } from "@/core/helper";
+import RedisClient from "@/core/redisCache.config";
+import ResponseTrait from "@/core/responseTrait";
 
 const ProjectService = {
     get: async (params) => {
@@ -16,7 +16,7 @@ const ProjectService = {
         }
 
         const cacheKey = projectCacheKey.replace(":code", value.key)
-        const resData = redisClient.hGet(cacheKey)
+        let resData = await RedisClient.get(cacheKey)
         if (resData) return ResponseTrait.success(resData)
 
         const docRef = collection(db, "project");
@@ -28,6 +28,8 @@ const ProjectService = {
         }
 
         resData = docSnap.docs[0].data()
+
+        RedisClient.set(projectCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData);
     },
@@ -73,18 +75,13 @@ const ProjectService = {
         return ResponseTrait.success(docData);
     },
     store: async (params) => {
-        // if(params.members) {
-        //     params.members = JSON.parse(params.members)
-        // }
-
         const { error, value } = projectStoreSchema.validate(params);
-        const { name, members, teams } = value
         if (error) {
             return ResponseTrait.error(error)
         }
 
         const dateNow = new Date()
-        value.code = generateCode(projectKey, dateNow, name)
+        value.code = generateCode(projectKey, dateNow, value.name)
 
         const docRef = collection(db, "project");
         const docSnap = await addDoc(docRef, {
@@ -92,50 +89,37 @@ const ProjectService = {
             // status: PROJECT_STATUS_PENDING,
             created_at: dateNow
         });
+        
+        const docData = (await getDoc(docSnap)).data()
+        
+        if (!docData) return ResponseTrait.error("Error when store Project!")
 
-        if (members && members.length > 0) {
-            const memberCodes = members.map(m => m.code)
-            await updateDoc(docSnap, {
-                memberCodes: memberCodes
-            })
-        }
-
-        if (teams && teams.length > 0) {
-            const teamCodes = teams.map(m => m.code)
-            await updateDoc(docSnap, {
-                teamCodes: teamCodes
-            })
-        }
-
-        if (!docSnap) return ResponseTrait.error("")
+        await ProjectMemberService.update({key: docData.code}, params)
 
         const resData = (await getDoc(docSnap)).data()
 
-        redisClient.hSet(projectCacheKey.replace(":code", value.code), JSON.stringify(resData))
+        await RedisClient.set(projectCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData)
     },
     update: async (params, body) => {
         const { error, value } = projectUpdateSchema.validate({ ...params, ...body });
-        const { key, members, teams } = value
+        const { key } = value
         if (error) {
             return ResponseTrait.error(error)
         }
 
         const docRef = collection(db, "project");
-
         const docQuery = query(docRef, where("code", "==", key))
-
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) {
             return ResponseTrait.error("No such Project!")
         }
 
+        await ProjectMemberService.update({key: value.key}, body)
+        
         delete value.key
-        value.memberCodes = members?.map(m => m.code)
-        value.teamCodes = teams?.map(m => m.code)
-
         await updateDoc(docSnap.docs[0].ref, {
             ...value,
             updated_at: new Date()
@@ -143,7 +127,7 @@ const ProjectService = {
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(projectCacheKey.replace(":code", key), JSON.stringify(resData))
+        RedisClient.set(projectCacheKey.replace(":code", resData.code), resData)
 
         return resData
     },
@@ -169,47 +153,49 @@ const ProjectService = {
         })
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(projectCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(projectCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData)
-    },
+    }
+}
 
-    changeStatus: async (params, body) => {
-        const { error, value } = projectDestroySchema.validate({ ...params, ...body });
+const ProjectMemberService = {
+    update: async (params, body) => {
+        const { error, value } = projectUpdateMembersSchema.validate({ ...params, ...body });
         if (error) {
             return ResponseTrait.error(error)
         }
 
+        const { key, members, teams } = value
+
         const docRef = collection(db, "project");
-
-        const docQuery = query(docRef, where("code", "==", value.key))
-
+        const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
-
-        const dataUpdate = {
-            status: value.status,
-            updated_at: new Date()
+        if (docSnap.empty) {
+            return ResponseTrait.error("No such Project!")
         }
 
-        if (value.status === PROJECT_STATUS_DELETED) dataUpdate.deleted_at = new Date()
+        const memberCodes = members?.map(m => m.code)
+        const teamCodes = teams?.map(m => m.code)
 
-        await updateDoc(docSnap.docs[0].ref, dataUpdate)
-        const resData = (await getDoc(docSnap.docs[0].ref)).data()
-
-        redisClient.hSet(projectCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        const resData = await updateDoc(docSnap.docs[0].ref, {
+            members: members || [],
+            teams: teams || [],
+            memberCodes: memberCodes || [],
+            teamCodes: teamCodes || []
+        })
 
         return ResponseTrait.success(resData)
     },
-    searchMembers: async (params) => {
+    search: async (params) => {
         const { error, value } = projectSearchMembersSchema.validate(params);
         if (error) {
             return ResponseTrait.error(error)
         }
 
         const cacheKey = projectCacheKey.replace(":code", value.key)
-        const entData = redisClient.hGet(cacheKey)
+        const entData = RedisClient.set(cacheKey)
 
         if (!entData) {
             const docRef = collection(db, "project");
@@ -234,4 +220,7 @@ const ProjectService = {
         return ResponseTrait.success(resData);
     }
 }
+
 export default ProjectService
+
+export { ProjectMemberService }

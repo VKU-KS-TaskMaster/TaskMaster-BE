@@ -1,4 +1,4 @@
-import ProjectService from "@/services/project.service";
+import ProjectService, { ProjectMemberService } from "@/services/project.service";
 
 const ProjectController = {
     get: async (req, res, next) => {
@@ -42,9 +42,9 @@ const ProjectController = {
         }
     },
     
-    changeStatus: async (req, res, next) => {
+    updateMembers: async (req, res, next) => {
         try {
-            const message = await ProjectService.changeStatus(req.params, req.body);
+            const message = await ProjectMemberService.update(req.params, req.body);
             return res.json(message);
         } catch (errors) {
             next(errors);
@@ -52,7 +52,7 @@ const ProjectController = {
     },
     searchMembers: async (req, res, next) => {
         try {
-            const message = await ProjectService.searchMembers(req.query);
+            const message = await ProjectMemberService.search(req.query);
             return res.json(message);
         } catch (errors) {
             next(errors);

@@ -1,5 +1,8 @@
 import ProjectStatusEnumArr from "@/enums/project/ProjectStatusEnum"
-import Joi from "joi"
+import BaseJoi from "joi"
+import JoiDate from '@joi/date';
+
+const Joi = BaseJoi.extend(JoiDate)
 
 const projectKey = "project"
 const projectCacheKey = "project_:code_"
@@ -34,7 +37,7 @@ const projectStoreSchema = Joi.object({
     description: Joi.string().max(200).required(),
     begin_date: Joi.date().format("YYYY-MM-DD").default(new Date()).required(),
     due_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('begin_date')).required(),
-
+    
     members: Joi.array().items(Joi.object()).optional(),
     teams: Joi.array().items(Joi.object()).optional()
 })
@@ -50,20 +53,18 @@ const projectUpdateSchema = Joi.object({
     description: Joi.string().max(200).required(),
     begin_date: Joi.date().format("YYYY-MM-DD").default(new Date()).required(),
     due_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('begin_date')).required(),
-
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
-})
+}).unknown()
 
 const projectDestroySchema = Joi.object({
     key: Joi.string().required(),
 })
 
-const projectChangeStatusSchema = Joi.object({
-    key: Joi.string().required(),
+const projectUpdateMembersSchema = Joi.object({
+    key: Joi.string().required(), //ProjectCode
 
-    status: Joi.number().integer().valid(...ProjectStatusEnumArr).required(),
-})
+    members: Joi.array().items(Joi.object()).optional(),
+    teams: Joi.array().items(Joi.object()).optional()
+}).unknown()
 
 const projectSearchMembersSchema = Joi.object({
     q: Joi.string().required()
@@ -80,6 +81,6 @@ export {
     projectUpdateSchema,
     projectDestroySchema,
 
-    projectChangeStatusSchema,
+    projectUpdateMembersSchema,
     projectSearchMembersSchema
 }
