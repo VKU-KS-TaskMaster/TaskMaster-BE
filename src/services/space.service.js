@@ -1,7 +1,7 @@
 import { SPACE_STATUS_DELETED } from "@/enums/SpaceStatusEnum";
 import { db } from "@/core/firebase.config";
 import { generateCode } from "@/core/helper";
-import redisClient from "@/core/redisCache.config";
+import RedisClient from "@/core/redisCache.config";
 import ResponseTrait from "@/core/responseTrait";
 import { spaceCacheKey, spaceChangeStatusSchema, spaceDestroySchema, spaceGetListSchema, spaceGetSchema, spaceKey, spaceStoreSchema, spaceUpdateSchema } from "@/models/space.model";
 import { collection, doc, query, where, getDocs, or, and, addDoc, getDoc, updateDoc } from "firebase/firestore";
@@ -15,7 +15,7 @@ const SpaceService = {
         }
 
         const cacheKey = spaceCacheKey.replace(":code", value.key)
-        const resData = redisClient.hGet(cacheKey)
+        let resData = await RedisClient.get(cacheKey)
         if (resData) return ResponseTrait.success(resData)
 
         const docRef = collection(db, "space");
@@ -25,7 +25,7 @@ const SpaceService = {
         if (docSnap.empty) return ResponseTrait.error('No such Space!')
 
         resData = docSnap.docs[0].data();
-        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(spaceCacheKey.replace(":code", value.key), resData)
 
         return ResponseTrait.success(resData);
     },
@@ -33,7 +33,7 @@ const SpaceService = {
         params.status = params.status?.split(',')
 
         const { error, value } = spaceGetListSchema.validate(params);
-        const { q, status } = value
+        const { q, user_code, status } = value
 
         if (error) {
             return ResponseTrait.error(error)
@@ -50,6 +50,8 @@ const SpaceService = {
                 where(a, "<=", q + '\uf8ff')
             ))))
         }
+
+        if (user_code) docQuery = query(docQuery, where('user_code', '==', user_code))
 
         if (status && status.length > 0) {
             docQuery = query(docQuery, where('status', 'in', status))
@@ -70,14 +72,15 @@ const SpaceService = {
         value.code = generateCode(spaceKey, dateNow, value.name)
 
         const spaceRef = collection(db, "space");
-
-        const resData = await addDoc(doc(spaceRef), {
+        const spaceDoc = await addDoc(spaceRef, {
             ...value,
             // status: SPACE_STATUS_PENDING,
             created_at: dateNow
         });
 
-        redisClient.hSet(spaceCacheKey.replace(":code", value.code), JSON.stringify(resData))
+        const resData = (await getDoc(spaceDoc)).data()
+
+        RedisClient.set(spaceCacheKey.replace(":code", value.code), resData)
 
         return ResponseTrait.success(resData)
     },
@@ -103,7 +106,7 @@ const SpaceService = {
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(spaceCacheKey.replace(":code", value.key), resData)
 
         return ResponseTrait.success(resData)
     },
@@ -128,7 +131,7 @@ const SpaceService = {
             deleted_at: new Date()
         })
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
-        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(spaceCacheKey.replace(":code", value.key), resData)
 
         return ResponseTrait.success(resData)
     },
@@ -157,7 +160,7 @@ const SpaceService = {
         await updateDoc(docSnap.docs[0].ref, dataUpdate)
         
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
-        redisClient.hSet(spaceCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(spaceCacheKey.replace(":code", value.key), resData)
 
         return ResponseTrait.success(resData)
     },

@@ -18,16 +18,18 @@ const spaceGetListSchema = Joi.object({
 
 const spaceStoreSchema = Joi.object({
     user_code: Joi.string().required(),
-    name: Joi.string().optional(),
-    status: Joi.array().optional(),
+    name: Joi.string().required(),
+    status: Joi.number().integer().valid(...SpaceStatusEnumArr).required(),
     description: Joi.string().optional()
-})
+}).unknown()
 
 const spaceUpdateSchema = Joi.object({
+    key: Joi.string().required(),
+
     name: Joi.string().optional(),
-    status: Joi.array().optional(),
+    status: Joi.number().integer().valid(...SpaceStatusEnumArr).optional(),
     description: Joi.string().optional()
-})
+}).unknown()
 
 const spaceDestroySchema = Joi.object({
     key: Joi.string().required(),
