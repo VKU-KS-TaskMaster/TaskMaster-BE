@@ -1,13 +1,15 @@
 import MilestoneStatusEnumArr from "@/enums/milestone/MilestoneStatusEnum"
-import Joi from "joi"
+import BaseJoi from "joi"
+import JoiDate from '@joi/date';
+
+const Joi = BaseJoi.extend(JoiDate)
 
 const milestoneKey = "milestone"
 const milestoneCacheKey = "milestone_:code_"
 const milestoneSearchCacheKey = "milestone.search_:code_"
 
 const milestoneGetSchema = Joi.object({
-    key: Joi.string().required(),
-    projectCode: Joi.string().required()
+    key: Joi.string().required()
 })
 
 const milestoneGetListSchema = Joi.object({
@@ -35,7 +37,7 @@ const milestoneStoreSchema = Joi.object({
 
     members: Joi.array().items(Joi.object()).optional(),
     teams: Joi.array().items(Joi.object()).optional()
-})
+}).unknown()
 
 const milestoneUpdateSchema = Joi.object({
     key: Joi.string().required(),
@@ -43,27 +45,22 @@ const milestoneUpdateSchema = Joi.object({
     name: Joi.string().required(),
     status: Joi.number().integer().valid(...MilestoneStatusEnumArr).required(),
     description: Joi.string().max(200).required(),
-    due_date: Joi.date().format("YYYY-MM-DD").min(today()).required(),
+    due_date: Joi.date().format("YYYY-MM-DD").required(),
 
     members: Joi.array().items(Joi.object()).optional(),
     teams: Joi.array().items(Joi.object()).optional()
-})
+}).unknown()
 
 const milestoneDestroySchema = Joi.object({
     key: Joi.string().required()
 })
 
-const milestoneChangeStatusSchema = Joi.object({
-    key: Joi.string().required(),
+const milestoneUpdateMembersSchema = Joi.object({
+    key: Joi.string().required(), //MilestoneCode
 
-    status: Joi.number().integer().valid(...MilestoneStatusEnumArr).required(),
-})
-
-const milestoneChangeDueDateSchema = Joi.object({
-    key: Joi.string().required(),
-
-    due_date: Joi.date().required(),
-})
+    members: Joi.array().items(Joi.object()).optional(),
+    teams: Joi.array().items(Joi.object()).optional()
+}).unknown()
 
 const milestoneSearchMembersSchema = Joi.object({
     q: Joi.string().required()
@@ -80,7 +77,6 @@ export {
     milestoneUpdateSchema,
     milestoneDestroySchema,
     
-    milestoneChangeStatusSchema,
-    milestoneChangeDueDateSchema,
+    milestoneUpdateMembersSchema,
     milestoneSearchMembersSchema
 }

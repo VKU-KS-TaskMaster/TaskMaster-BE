@@ -1,4 +1,4 @@
-import MilestoneService from "@/services/milestone.service";
+import MilestoneService, { MilestoneMemberService } from "@/services/milestone.service";
 
 const MilestoneController = {
     get: async (req, res, next) => {
@@ -42,17 +42,9 @@ const MilestoneController = {
         }
     },
 
-    changeStatus: async (req, res, next) => {
+    updateMembers: async (req, res, next) => {
         try {
-            const message = await MilestoneService.changeStatus(req.params, req.body);
-            return res.json(message);
-        } catch (errors) {
-            next(errors);
-        }
-    },
-    changeDueDate: async (req, res, next) => {
-        try {
-            const message = await MilestoneService.changeDueDate(req.params, req.body);
+            const message = await MilestoneMemberService.update(req.params, req.body);
             return res.json(message);
         } catch (errors) {
             next(errors);
@@ -60,7 +52,7 @@ const MilestoneController = {
     },
     searchMembers: async (req, res, next) => {
         try {
-            const message = await MilestoneService.searchMembers(req.body);
+            const message = await MilestoneMemberService.search(req.query);
             return res.json(message);
         } catch (errors) {
             next(errors);

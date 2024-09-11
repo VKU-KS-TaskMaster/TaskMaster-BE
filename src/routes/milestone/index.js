@@ -10,8 +10,7 @@ router.post("/", MilestoneController.store);
 router.put("/:key", MilestoneController.update);
 router.delete("/:key", MilestoneController.destroy);
 
-router.post("/change_status/:key", MilestoneController.changeStatus)
-router.post("/change_due_date/:key", MilestoneController.changeDueDate)
-router.post("/search_members/", MilestoneController.searchMembers)
+router.post("/:key/update_members", MilestoneController.updateMembers)
+router.get("/search_members", MilestoneController.searchMembers)
 
 module.exports = router;

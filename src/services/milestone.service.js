@@ -1,4 +1,4 @@
-import { addDoc, and, collection, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
 
 import { db } from "@/core/firebase.config";
 import {
@@ -9,10 +9,13 @@ import {
     milestoneDestroySchema,
     milestoneCacheKey,
     milestoneKey,
+    milestoneUpdateMembersSchema,
+    milestoneSearchMembersSchema,
 } from "@/models/milestone.model";
 import ResponseTrait from "@/core/responseTrait";
-import redisClient from "@/core/redisCache.config";
+import RedisClient from "@/core/redisCache.config";
 import { generateCode } from "@/core/helper";
+import { MILESTONE_STATUS_DELETED } from "@/enums/milestone/MilestoneStatusEnum";
 
 const MilestoneService = {
     get: async (params) => {
@@ -23,7 +26,7 @@ const MilestoneService = {
         }
 
         const cacheKey = milestoneCacheKey.replace(":code", value.key);
-        const resData = redisClient.hGet(cacheKey);
+        let resData = await RedisClient.get(cacheKey);
         if (resData) return ResponseTrait.success(resData);
 
         const docRef = collection(db, "milestone");
@@ -35,6 +38,8 @@ const MilestoneService = {
         }
 
         resData = docSnap.docs[0].data();
+
+        RedisClient.set(milestoneCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData);
     },
@@ -92,29 +97,18 @@ const MilestoneService = {
         const docRef = collection(db, "milestone");
         const docSnap = await addDoc(docRef, {
             ...value,
-            // status: PROJECT_STATUS_PENDING,
+            // status: MILESTONE_STATUS_PENDING,
             created_at: dateNow
         });
 
-        if (members && members.length > 0) {
-            const memberCodes = members.map(m => m.code)
-            await updateDoc(docSnap, {
-                memberCodes: memberCodes
-            })
-        }
+        const docData = (await getDoc(docSnap)).data()
+        if (!docData) return ResponseTrait.error("Error when store Milestone!")
 
-        if (teams && teams.length > 0) {
-            const teamCodes = teams.map(m => m.code)
-            await updateDoc(docSnap, {
-                teamCodes: teamCodes
-            })
-        }
-
-        if (!docSnap) return ResponseTrait.error("")
+        await MilestoneMemberService.update({ key: docData.code }, params)
 
         const resData = (await getDoc(docSnap)).data()
 
-        redisClient.hSet(milestoneCacheKey.replace(":code", value.code), JSON.stringify(resData))
+        RedisClient.set(milestoneCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData)
     },
@@ -126,19 +120,16 @@ const MilestoneService = {
         }
 
         const docRef = collection(db, "milestone");
-
         const docQuery = query(docRef, where("code", "==", key))
-
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) {
             return ResponseTrait.error("No such Milestone!")
         }
 
-        delete value.key
-        value.memberCodes = members?.map(m => m.code)
-        value.teamCodes = teams?.map(m => m.code)
+        await MilestoneMemberService.update({key: value.key}, body)
 
+        delete value.key
         await updateDoc(docSnap.docs[0].ref, {
             ...value,
             updated_at: new Date()
@@ -146,7 +137,7 @@ const MilestoneService = {
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(milestoneCacheKey.replace(":code", key), JSON.stringify(resData))
+        RedisClient.set(milestoneCacheKey.replace(":code", resData.code), resData)
 
         return resData
     },
@@ -166,79 +157,55 @@ const MilestoneService = {
 
         delete value.key
         await updateDoc(docSnap.docs[0].ref, {
-            status: PROJECT_STATUS_DELETED,
+            status: MILESTONE_STATUS_DELETED,
             updated_at: new Date(),
             deleted_at: new Date()
         })
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        redisClient.hSet(milestoneCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        RedisClient.set(milestoneCacheKey.replace(":code", resData.code), resData)
 
         return ResponseTrait.success(resData)
     },
+};
 
-    changeStatus: async (params, body) => {
-        const { error, value } = projectDestroySchema.validate({ ...params, ...body });
+const MilestoneMemberService = {
+    update: async (params, body) => {
+        const { error, value } = milestoneUpdateMembersSchema.validate({ ...params, ...body });
         if (error) {
             return ResponseTrait.error(error)
         }
 
+        const { key, members, teams } = value
+
         const docRef = collection(db, "milestone");
-
-        const docQuery = query(docRef, where("code", "==", value.key))
-
+        const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
-
-        const dataUpdate = {
-            status: value.status,
-            updated_at: new Date()
+        if (docSnap.empty) {
+            return ResponseTrait.error("No such Milestone!")
         }
 
-        if (value.status === PROJECT_STATUS_DELETED) dataUpdate.deleted_at = new Date()
+        const memberCodes = members?.map(m => m.code)
+        const teamCodes = teams?.map(m => m.code)
 
-        await updateDoc(docSnap.docs[0].ref, dataUpdate)
-        const resData = (await getDoc(docSnap.docs[0].ref)).data()
-
-        redisClient.hSet(milestoneCacheKey.replace(":code", value.key), JSON.stringify(resData))
+        const resData = await updateDoc(docSnap.docs[0].ref, {
+            members: members || [],
+            teams: teams || [],
+            memberCodes: memberCodes || [],
+            teamCodes: teamCodes || []
+        })
 
         return ResponseTrait.success(resData)
     },
-    changeDueDate: async (params, body) => {
-        const { error, value } = milestoneDestroySchema.validate({...params, ...body});
-        if (error) {
-            return ResponseTrait.error(error)
-        }
-
-        const docRef = collection(db, "milestone");
-
-        const docQuery = query(docRef, where("code", "==", value.key))
-
-        const docSnap = await getDocs(docQuery);
-
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
-
-        const dataUpdate = {
-            due_date: value.due_date,
-            updated_at: new Date()
-        }
-
-        await updateDoc(docSnap.docs[0].ref, dataUpdate)
-        const resData = (await getDoc(docSnap.docs[0].ref)).data()
-
-        redisClient.hSet(milestoneCacheKey.replace(":code", value.key), JSON.stringify(resData))
-
-        return ResponseTrait.success(resData)
-    },
-    searchMembers: async (params) => {
+    search: async (params) => {
         const { error, value } = milestoneSearchMembersSchema.validate(params);
         if (error) {
             return ResponseTrait.error(error)
         }
 
         const cacheKey = milestoneCacheKey.replace(":code", value.key)
-        const entData = redisClient.hGet(cacheKey)
+        const entData = RedisClient.get(cacheKey)
 
         if (!entData) {
             const docRef = collection(db, "milestone");
@@ -262,6 +229,8 @@ const MilestoneService = {
 
         return ResponseTrait.success(resData);
     }
-};
+}
 
 export default MilestoneService;
+
+export { MilestoneMemberService }
