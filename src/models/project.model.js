@@ -40,7 +40,7 @@ const projectStoreSchema = Joi.object({
     
     members: Joi.array().items(Joi.object()).optional(),
     teams: Joi.array().items(Joi.object()).optional()
-})
+}).unknown()
 
 const projectUpdateSchema = Joi.object({
     key: Joi.string().required(),
