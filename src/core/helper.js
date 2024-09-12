@@ -1,6 +1,7 @@
 import { milestoneKey } from "@/models/milestone.model";
 import { projectKey } from "@/models/project.model";
 import { spaceKey } from "@/models/space.model";
+import { teamKey } from "@/models/team.model";
 
 const splitArr = (arr, char, attr) => {
     return arr.split(char)
@@ -21,7 +22,8 @@ const simpleHashStringToNumber = (str) => {
 const typeTableKey = {
     [spaceKey]: 'SPA_',
     [projectKey]: 'PRJ_',
-    [milestoneKey]: 'MST_'
+    [milestoneKey]: 'MST_',
+    [teamKey]: 'TEA_',
 }
 const generateCode = (type, now, name) => {
     const timeStamp = now.getTime()
@@ -31,4 +33,4 @@ const generateCode = (type, now, name) => {
     return key + timeStamp + "." + hash
 }
 
-export { splitArr, simpleHashStringToNumber, generateCode }
+export { generateCode, simpleHashStringToNumber, splitArr };

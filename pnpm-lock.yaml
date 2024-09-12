@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@joi/date':
+        specifier: ^2.1.1
+        version: 2.1.1
       compression:
         specifier: ^1.7.4
         version: 1.7.4
@@ -899,6 +902,9 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+
+  '@joi/date@2.1.1':
+    resolution: {integrity: sha512-oXF8vU8M+O9a6tuItgtTQeboO3+Ed6xunLatt6gq7WEFJ7HjawPH64OmrsX0ch3TEsUgQkU8v4MlOGEsf6PHSQ==}
 
   '@jridgewell/gen-mapping@0.3.5':
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
@@ -1913,6 +1919,9 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   morgan@1.10.0:
     resolution: {integrity: sha512-AbegBVI4sh6El+1gNwvD5YIck7nSA36weD7xvIxG4in80j/UoK8AEGaWnnz8v1GxonMCltmlNs5ZKbGvl9b1XQ==}
@@ -3650,6 +3659,10 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
+  '@joi/date@2.1.1':
+    dependencies:
+      moment: 2.30.1
+
   '@jridgewell/gen-mapping@0.3.5':
     dependencies:
       '@jridgewell/set-array': 1.2.1
@@ -4892,6 +4905,8 @@ snapshots:
   minipass@4.2.8: {}
 
   minipass@7.1.2: {}
+
+  moment@2.30.1: {}
 
   morgan@1.10.0:
     dependencies:
