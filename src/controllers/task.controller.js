@@ -1,46 +1,65 @@
 import TaskService from "@/services/task.service";
+import { taskGetSchema } from "@/models/task.model";
+import { TaskMemberService } from "@/services/task.service";
 
 const TaskController = {
-    get: async (req, res, next) => {
+    get: async (params, req, res, next) => {
         try {
-            const message = await TaskService.get(req.body);
-            return res.send(message);
+            const resData = await TaskService.get(params);
+            return res.json(resData);
         } catch (errors) {
             next(errors);
         }
     },
-    getList: async (req, res, next) => {
+    search: async (params, req, res, next) => {
         try {
-            const message = await TaskService.getList(req.body);
-            return res.send(message);
+            const message = await TaskService.search(req.query);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    store: async (req, res, next) => {
+    store: async (params, req, res, next) => {
         try {
             const message = await TaskService.store(req.body);
-            return res.send(message);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    update: async (req, res, next) => {
+    update: async (params, req, res, next) => {
         try {
-            const message = await TaskService.update(req.body);
-            return res.send(message);
+            const message = await TaskService.update(req.params, req.body);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    destroy: async (req, res, next) => {
+    destroy: async (params, req, res, next) => {
         try {
-            const message = await TaskService.destroy(req.body);
-            return res.send(message);
+            const message = await TaskService.destroy(req.params);
+            return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
+
+    updateMembers: async (params, req, res, next) => {
+        try {
+            const message = await TaskMemberService.update(req.params, req.body);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    },
+    searchMembers: async (params, req, res, next) => {
+        try {
+            const message = await TaskMemberService.search(req.query);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    }
 }
 
 export default TaskController
