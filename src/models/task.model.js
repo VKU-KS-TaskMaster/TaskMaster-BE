@@ -1,77 +1,74 @@
 import TaskStatusEnumArr from "@/enums/task/TaskStatusEnum"
-import BaseJoi from "joi"
-import JoiDate from '@joi/date';
-
-const Joi = BaseJoi.extend(JoiDate)
+import JoiCustom from "@/core/joiCustom.config"
 
 const taskKey = "task"
 const taskCacheKey = "task_:code_"
 const taskSearchCacheKey = "task.search_:code_"
 
-const taskGetSchema = Joi.object({
-    key: Joi.string().required(),
+const taskGetSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 })
 
-const taskGetListSchema = Joi.object({
-    q: Joi.string().optional(),
+const taskGetListSchema = JoiCustom.object({
+    q: JoiCustom.string().optional(),
 
-    user_code: Joi.string().optional(),
-    project_code: Joi.string().required(),
-    milestone_code: Joi.string().optional(),
-    start_date: Joi.date().format("YYYY-MM-DD").optional(),
-    end_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('start_date')).optional(),
+    user_code: JoiCustom.string().optional(),
+    project_code: JoiCustom.string().required(),
+    milestone_code: JoiCustom.string().optional(),
+    start_date: JoiCustom.date().format("YYYY-MM-DD").optional(),
+    end_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('start_date')).optional(),
     
-    status: Joi.array().valid(...TaskStatusEnumArr).optional(),
-    members: Joi.array().items(Joi.string()).optional(), //List member's codes
-    teams: Joi.array().items(Joi.string()).optional() //List team's codes
+    status: JoiCustom.stringArray().splitStr(',').valid(...TaskStatusEnumArr).optional(),
+    members: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional(), //List member's codes
+    teams: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional() //List team's codes
 })
 
-const taskStoreSchema = Joi.object({
-    user_code: Joi.string().required(),
-    project_code: Joi.string().required(),
-    milestone_code: Joi.string().optional(),
+const taskStoreSchema = JoiCustom.object({
+    user_code: JoiCustom.string().required(),
+    project_code: JoiCustom.string().required(),
+    milestone_code: JoiCustom.string().optional(),
 
-    name: Joi.string().required(),
-    status: Joi.number().integer().valid(...TaskStatusEnumArr).required(),
-    description: Joi.string().max(200).required(),
-    begin_date: Joi.date().format("YYYY-MM-DD").default(new Date()).required(),
-    due_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('begin_date')).required(),
+    name: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().valid(...TaskStatusEnumArr).required(),
+    description: JoiCustom.string().max(200).required(),
+    begin_date: JoiCustom.date().format("YYYY-MM-DD").default(new Date()).required(),
+    due_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('begin_date')).required(),
 
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional(),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+}).unknown()
+
+const taskUpdateSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
+
+    milestone_code: JoiCustom.string().optional(),
+    name: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().valid(...TaskStatusEnumArr).required(),
+    description: JoiCustom.string().max(200).required(),
+    due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
+
+    members: JoiCustom.array().items(JoiCustom.object()).optional(),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+}).unknown()
+
+const taskDestroySchema = JoiCustom.object({
+    key: JoiCustom.string().required()
 })
 
-const taskUpdateSchema = Joi.object({
-    key: Joi.string().required(),
+const taskChangeStatusSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 
-    milestone_code: Joi.string().optional(),
-    name: Joi.string().required(),
-    status: Joi.number().integer().valid(...TaskStatusEnumArr).required(),
-    description: Joi.string().max(200).required(),
-    due_date: Joi.date().format("YYYY-MM-DD").required(),
+    status: JoiCustom.number().integer().valid(...TaskStatusEnumArr).required(),
+}).unknown()
 
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
-})
+const taskChangeDueDateSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 
-const taskDestroySchema = Joi.object({
-    key: Joi.string().required()
-})
+    due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
+}).unknown()
 
-const taskChangeStatusSchema = Joi.object({
-    key: Joi.string().required(),
-
-    status: Joi.number().integer().valid(...TaskStatusEnumArr).required(),
-})
-
-const taskChangeDueDateSchema = Joi.object({
-    key: Joi.string().required(),
-
-    due_date: Joi.date().format("YYYY-MM-DD").required(),
-})
-
-const taskSearchMembersSchema = Joi.object({
-    q: Joi.string().required()
+const taskSearchMembersSchema = JoiCustom.object({
+    q: JoiCustom.string().required()
 })
 
 export {

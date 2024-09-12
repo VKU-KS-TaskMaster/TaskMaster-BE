@@ -1,36 +1,36 @@
-import Joi from "joi"
+import JoiCustom from "@/core/joiCustom.config"
 
-const userInfoGetSchema = Joi.object({
-    search: Joi.string().optional(),
+const userInfoGetSchema = JoiCustom.object({
+    search: JoiCustom.string().optional(),
 })
 
-const userInfoStoreSchema = Joi.object({
-    user_name: Joi.string().required(),
-    // email_address: Joi.string().optional(),
-    code: Joi.string().optional(),
-    first_name: Joi.string().optional(),
-    last_name: Joi.string().optional(),
+const userInfoStoreSchema = JoiCustom.object({
+    user_name: JoiCustom.string().required(),
+    // email_address: JoiCustom.string().optional(),
+    code: JoiCustom.string().optional(),
+    first_name: JoiCustom.string().optional(),
+    last_name: JoiCustom.string().optional(),
 })
 
-const userInfoUpdateSchema = Joi.object({
-    user_name: Joi.string().optional(),
-    code: Joi.string().optional(),
-    first_name: Joi.string().optional(),
-    last_name: Joi.string().optional(),
+const userInfoUpdateSchema = JoiCustom.object({
+    user_name: JoiCustom.string().optional(),
+    code: JoiCustom.string().optional(),
+    first_name: JoiCustom.string().optional(),
+    last_name: JoiCustom.string().optional(),
 })
 
-const userInfoUpdatePasswordSchema = Joi.object({
-    pass_word: Joi.string().required(),
-    repeat_pass_word: Joi.string().required(),
+const userInfoUpdatePasswordSchema = JoiCustom.object({
+    pass_word: JoiCustom.string().required(),
+    repeat_pass_word: JoiCustom.string().required(),
 })
 
-const userInfoUpdateStatusSchema = Joi.object({
-    code: Joi.string().required(),
-    status: Joi.number().integer().required(),
+const userInfoUpdateStatusSchema = JoiCustom.object({
+    code: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().required(),
 })
 
-const userInfoDestroySchema = Joi.object({
-    code: Joi.string().required(),
+const userInfoDestroySchema = JoiCustom.object({
+    code: JoiCustom.string().required(),
 })
 
 export { userInfoGetSchema, userInfoStoreSchema, userInfoUpdateSchema, userInfoUpdatePasswordSchema, userInfoUpdateStatusSchema, userInfoDestroySchema }

@@ -1,14 +1,14 @@
-import Joi from "joi"
+import JoiCustom from "@/core/joiCustom.config"
 
-const projectMemberGetListSchema = Joi.object({
-    search: Joi.string().optional(),
-    project_id: Joi.number().integer().required(),
+const projectMemberGetListSchema = JoiCustom.object({
+    search: JoiCustom.string().optional(),
+    project_id: JoiCustom.number().integer().required(),
 })
 
-const projectMemberUpdateSchema = Joi.object({
-    project_id: Joi.number().integer().required(),
+const projectMemberUpdateSchema = JoiCustom.object({
+    project_id: JoiCustom.number().integer().required(),
 
-    members: Joi.array().items(Joi.object()).required() //List member's codes
+    members: JoiCustom.array().items(JoiCustom.object()).required() //List member's codes
 })
 
 export {

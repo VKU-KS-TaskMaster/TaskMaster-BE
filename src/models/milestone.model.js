@@ -1,69 +1,66 @@
 import MilestoneStatusEnumArr from "@/enums/milestone/MilestoneStatusEnum"
-import BaseJoi from "joi"
-import JoiDate from '@joi/date';
-
-const Joi = BaseJoi.extend(JoiDate)
+import JoiCustom from "@/core/joiCustom.config"
 
 const milestoneKey = "milestone"
 const milestoneCacheKey = "milestone_:code_"
 const milestoneSearchCacheKey = "milestone.search_:code_"
 
-const milestoneGetSchema = Joi.object({
-    key: Joi.string().required()
+const milestoneGetSchema = JoiCustom.object({
+    key: JoiCustom.string().required()
 })
 
-const milestoneGetListSchema = Joi.object({
-    q: Joi.string().optional(),
+const milestoneGetListSchema = JoiCustom.object({
+    q: JoiCustom.string().optional(),
 
-    user_code: Joi.string().optional(),
-    project_code: Joi.string().required(),
-    start_date: Joi.date().format("YYYY-MM-DD").optional(),
-    end_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('start_date')).optional(),
+    user_code: JoiCustom.string().optional(),
+    project_code: JoiCustom.string().required(),
+    start_date: JoiCustom.date().format("YYYY-MM-DD").optional(),
+    end_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('start_date')).optional(),
     
-    status: Joi.array().valid(...MilestoneStatusEnumArr).optional(),
-    members: Joi.array().items(Joi.string()).optional(), //List member's codes
-    teams: Joi.array().items(Joi.string()).optional() //List team's codes
+    status: JoiCustom.stringArray().splitStr(',').valid(...MilestoneStatusEnumArr).optional(),
+    members: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional(), //List member's codes
+    teams: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional() //List team's codes
 })
 
-const milestoneStoreSchema = Joi.object({
-    user_code: Joi.string().required(),
-    project_code: Joi.string().required(),
+const milestoneStoreSchema = JoiCustom.object({
+    user_code: JoiCustom.string().required(),
+    project_code: JoiCustom.string().required(),
 
-    name: Joi.string().required(),
-    status: Joi.number().integer().valid(...MilestoneStatusEnumArr).required(),
-    description: Joi.string().max(200).required(),
-    begin_date: Joi.date().format("YYYY-MM-DD").default(new Date()).required(),
-    due_date: Joi.date().format("YYYY-MM-DD").min(Joi.ref('begin_date')).required(),
+    name: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().valid(...MilestoneStatusEnumArr).required(),
+    description: JoiCustom.string().max(200).required(),
+    begin_date: JoiCustom.date().format("YYYY-MM-DD").default(new Date()).required(),
+    due_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('begin_date')).required(),
 
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional(),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional()
 }).unknown()
 
-const milestoneUpdateSchema = Joi.object({
-    key: Joi.string().required(),
+const milestoneUpdateSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 
-    name: Joi.string().required(),
-    status: Joi.number().integer().valid(...MilestoneStatusEnumArr).required(),
-    description: Joi.string().max(200).required(),
-    due_date: Joi.date().format("YYYY-MM-DD").required(),
+    name: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().valid(...MilestoneStatusEnumArr).required(),
+    description: JoiCustom.string().max(200).required(),
+    due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
 
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional(),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional()
 }).unknown()
 
-const milestoneDestroySchema = Joi.object({
-    key: Joi.string().required()
+const milestoneDestroySchema = JoiCustom.object({
+    key: JoiCustom.string().required()
 })
 
-const milestoneUpdateMembersSchema = Joi.object({
-    key: Joi.string().required(), //MilestoneCode
+const milestoneUpdateMembersSchema = JoiCustom.object({
+    key: JoiCustom.string().required(), //MilestoneCode
 
-    members: Joi.array().items(Joi.object()).optional(),
-    teams: Joi.array().items(Joi.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional(),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional()
 }).unknown()
 
-const milestoneSearchMembersSchema = Joi.object({
-    q: Joi.string().required()
+const milestoneSearchMembersSchema = JoiCustom.object({
+    q: JoiCustom.string().required()
 })
 
 export {

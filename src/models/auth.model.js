@@ -1,48 +1,48 @@
-import Joi from "joi"
+import JoiCustom from "@/core/joiCustom.config"
 
 const passwordPattern = new RegExp("/^$/")
 const emailPattern = new RegExp("/^$/")
 const privateCodePattern = new RegExp("/^$/")
 
-const authSignInDefaultSchema = Joi.object({
-    // user_name: Joi.string().required(),
-    email: Joi.string().required(),
-    pass_word: Joi.string().pattern(passwordPattern).required()
+const authSignInDefaultSchema = JoiCustom.object({
+    // user_name: JoiCustom.string().required(),
+    email: JoiCustom.string().required(),
+    pass_word: JoiCustom.string().pattern(passwordPattern).required()
 })
 
-const authSignUpDefaultSchema = Joi.object({
-    user_name: Joi.string().required(),
-    pass_word: Joi.string().pattern(passwordPattern).required(),
-    repeat_pass_word: Joi.string().pattern(passwordPattern).required()
+const authSignUpDefaultSchema = JoiCustom.object({
+    user_name: JoiCustom.string().required(),
+    pass_word: JoiCustom.string().pattern(passwordPattern).required(),
+    repeat_pass_word: JoiCustom.string().pattern(passwordPattern).required()
 })
 
-const authSignInGoogleSchema = Joi.object({
-    user_name: Joi.string().required(),
-    pass_word: Joi.string().pattern(passwordPattern).required()
+const authSignInGoogleSchema = JoiCustom.object({
+    user_name: JoiCustom.string().required(),
+    pass_word: JoiCustom.string().pattern(passwordPattern).required()
 })
 
-const authSignUpGoogleSchema = Joi.object({
-    user_name: Joi.string().required(),
-    pass_word: Joi.string().pattern(passwordPattern).required()
+const authSignUpGoogleSchema = JoiCustom.object({
+    user_name: JoiCustom.string().required(),
+    pass_word: JoiCustom.string().pattern(passwordPattern).required()
 })
 
-const authVerifySignUpSchema = Joi.object({
-    email: Joi.string().pattern(emailPattern).required(),
-    private_code: Joi.string().pattern(privateCodePattern).required()
+const authVerifySignUpSchema = JoiCustom.object({
+    email: JoiCustom.string().pattern(emailPattern).required(),
+    private_code: JoiCustom.string().pattern(privateCodePattern).required()
 })
 
-const authLogoutSchema = Joi.object({
-    user_name: Joi.string().required(),
-    access_token: Joi.string().required()
+const authLogoutSchema = JoiCustom.object({
+    user_name: JoiCustom.string().required(),
+    access_token: JoiCustom.string().required()
 })
 
-const authForgotPasswordSchema = Joi.object({
-    email: Joi.string().pattern(emailPattern).required()
+const authForgotPasswordSchema = JoiCustom.object({
+    email: JoiCustom.string().pattern(emailPattern).required()
 })
 
-const authVerifyForgotPasswordSchema = Joi.object({
-    email: Joi.string().pattern(emailPattern).required(),
-    private_code: Joi.string().pattern(privateCodePattern).required()
+const authVerifyForgotPasswordSchema = JoiCustom.object({
+    email: JoiCustom.string().pattern(emailPattern).required(),
+    private_code: JoiCustom.string().pattern(privateCodePattern).required()
 })
 
 export {

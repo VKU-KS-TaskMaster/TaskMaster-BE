@@ -1,43 +1,43 @@
 import SpaceStatusEnumArr from "@/enums/SpaceStatusEnum"
-import Joi from "joi"
+import JoiCustom from "@/core/joiCustom.config"
 
 const spaceKey = "space"
 const spaceCacheKey = "space_:code_"
 const spaceSearchCacheKey = "space.search_:code_"
 
-const spaceGetSchema = Joi.object({
-    key: Joi.string().required()
+const spaceGetSchema = JoiCustom.object({
+    key: JoiCustom.string().required()
 })
 
-const spaceGetListSchema = Joi.object({
-    q: Joi.string().optional(),
-    user_code: Joi.string().optional(),
+const spaceGetListSchema = JoiCustom.object({
+    q: JoiCustom.string().optional(),
+    user_code: JoiCustom.string().optional(),
     
-    status: Joi.array().items(Joi.number().integer()).optional(),
+    status: JoiCustom.stringArray().splitStr(',').items(JoiCustom.number().integer()).optional(),
 })
 
-const spaceStoreSchema = Joi.object({
-    user_code: Joi.string().required(),
-    name: Joi.string().required(),
-    status: Joi.number().integer().valid(...SpaceStatusEnumArr).required(),
-    description: Joi.string().optional()
+const spaceStoreSchema = JoiCustom.object({
+    user_code: JoiCustom.string().required(),
+    name: JoiCustom.string().required(),
+    status: JoiCustom.number().integer().valid(...SpaceStatusEnumArr).required(),
+    description: JoiCustom.string().optional()
 }).unknown()
 
-const spaceUpdateSchema = Joi.object({
-    key: Joi.string().required(),
+const spaceUpdateSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 
-    name: Joi.string().optional(),
-    status: Joi.number().integer().valid(...SpaceStatusEnumArr).optional(),
-    description: Joi.string().optional()
+    name: JoiCustom.string().optional(),
+    status: JoiCustom.number().integer().valid(...SpaceStatusEnumArr).optional(),
+    description: JoiCustom.string().optional()
 }).unknown()
 
-const spaceDestroySchema = Joi.object({
-    key: Joi.string().required(),
+const spaceDestroySchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
 })
 
-const spaceChangeStatusSchema = Joi.object({
-    key: Joi.string().required(),
-    status: Joi.number().valid(...SpaceStatusEnumArr).required()
+const spaceChangeStatusSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
+    status: JoiCustom.number().valid(...SpaceStatusEnumArr).required()
 })
 
 export {
