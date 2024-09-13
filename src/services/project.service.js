@@ -78,7 +78,7 @@ const ProjectService = {
         if (!docData) return ResponseTrait.error("Error when store Project!")
 
         await ProjectMemberService.update({
-            name: name,
+            key: docData.code,
             members: members,
             teams: teams
         })
@@ -180,7 +180,7 @@ const ProjectMemberService = {
         const docRef = collection(db, "project");
         const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
-
+        
         if (docSnap.empty) {
             return ResponseTrait.error("No such Project!")
         }
