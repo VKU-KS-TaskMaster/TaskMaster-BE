@@ -9,7 +9,7 @@ const spaceGetSchema = JoiCustom.object({
     key: JoiCustom.string().required()
 })
 
-const spaceGetListSchema = JoiCustom.object({
+const spaceSearchSchema = JoiCustom.object({
     q: JoiCustom.string().optional(),
     user_code: JoiCustom.string().optional(),
     
@@ -46,7 +46,7 @@ export {
     spaceSearchCacheKey,
 
     spaceGetSchema,
-    spaceGetListSchema,
+    spaceSearchSchema,
     spaceStoreSchema,
     spaceUpdateSchema,
     spaceDestroySchema,

@@ -9,7 +9,7 @@ const projectGetSchema = JoiCustom.object({
     key: JoiCustom.string().required()
 })
 
-const projectGetListSchema = JoiCustom.object({
+const projectSearchSchema = JoiCustom.object({
     q: JoiCustom.string().optional(),
 
     user_code: JoiCustom.string().optional(),
@@ -35,8 +35,8 @@ const projectStoreSchema = JoiCustom.object({
     begin_date: JoiCustom.date().format("YYYY-MM-DD").default(new Date()).required(),
     due_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('begin_date')).required(),
     
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
 }).unknown()
 
 const projectUpdateSchema = JoiCustom.object({
@@ -56,16 +56,19 @@ const projectDestroySchema = JoiCustom.object({
     key: JoiCustom.string().required(),
 })
 
+//-------------------------------------------------
+const projectSearchMembersSchema = JoiCustom.object({
+    key: JoiCustom.string().required(), //ProjectCode
+
+    q: JoiCustom.string().required()
+})
+
 const projectUpdateMembersSchema = JoiCustom.object({
     key: JoiCustom.string().required(), //ProjectCode
 
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
 }).unknown()
-
-const projectSearchMembersSchema = JoiCustom.object({
-    q: JoiCustom.string().required()
-})
 
 export {
     projectKey,
@@ -73,7 +76,7 @@ export {
     projectSearchCacheKey,
 
     projectGetSchema,
-    projectGetListSchema,
+    projectSearchSchema,
     projectStoreSchema,
     projectUpdateSchema,
     projectDestroySchema,

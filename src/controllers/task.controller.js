@@ -13,7 +13,7 @@ const TaskController = {
     },
     search: async (params, req, res, next) => {
         try {
-            const message = await TaskService.search(req.query);
+            const message = await TaskService.search(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
@@ -21,7 +21,7 @@ const TaskController = {
     },
     store: async (params, req, res, next) => {
         try {
-            const message = await TaskService.store(req.body);
+            const message = await TaskService.store(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
@@ -29,7 +29,7 @@ const TaskController = {
     },
     update: async (params, req, res, next) => {
         try {
-            const message = await TaskService.update(req.params, req.body);
+            const message = await TaskService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
@@ -37,24 +37,33 @@ const TaskController = {
     },
     destroy: async (params, req, res, next) => {
         try {
-            const message = await TaskService.destroy(req.params);
+            const message = await TaskService.destroy(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
 
-    updateMembers: async (params, req, res, next) => {
+    updateByMember: async (params, req, res, next) => {
         try {
-            const message = await TaskMemberService.update(req.params, req.body);
+            const message = await TaskService.updateByMember(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
+
     searchMembers: async (params, req, res, next) => {
         try {
-            const message = await TaskMemberService.search(req.query);
+            const message = await TaskMemberService.search(params);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    },
+    updateMembers: async (params, req, res, next) => {
+        try {
+            const message = await TaskMemberService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);

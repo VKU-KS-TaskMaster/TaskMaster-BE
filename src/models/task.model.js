@@ -34,8 +34,8 @@ const taskStoreSchema = JoiCustom.object({
     begin_date: JoiCustom.date().format("YYYY-MM-DD").default(new Date()).required(),
     due_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('begin_date')).required(),
 
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
 }).unknown()
 
 const taskUpdateSchema = JoiCustom.object({
@@ -45,31 +45,34 @@ const taskUpdateSchema = JoiCustom.object({
     name: JoiCustom.string().required(),
     status: JoiCustom.number().integer().valid(...TaskStatusEnumArr).required(),
     description: JoiCustom.string().max(200).required(),
-    due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
-
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    due_date: JoiCustom.date().format("YYYY-MM-DD").required()
 }).unknown()
 
 const taskDestroySchema = JoiCustom.object({
     key: JoiCustom.string().required()
 })
 
-const taskChangeStatusSchema = JoiCustom.object({
+//-------------------------------------------------
+const taskUpdateByMemberSchema = JoiCustom.object({
     key: JoiCustom.string().required(),
 
     status: JoiCustom.number().integer().valid(...TaskStatusEnumArr).required(),
 }).unknown()
 
-const taskChangeDueDateSchema = JoiCustom.object({
-    key: JoiCustom.string().required(),
-
-    due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
-}).unknown()
-
+//-------------------------------------------------
 const taskSearchMembersSchema = JoiCustom.object({
+    key: JoiCustom.string().required(), //ProjectCode
+
     q: JoiCustom.string().required()
 })
+
+const taskUpdateMembersSchema = JoiCustom.object({
+    key: JoiCustom.string().required(), //TaskCode
+
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
+}).unknown()
+
 
 export {
     taskKey,
@@ -82,7 +85,8 @@ export {
     taskUpdateSchema,
     taskDestroySchema,
     
-    taskChangeStatusSchema,
-    taskChangeDueDateSchema,
+    taskUpdateByMemberSchema,
+
+    taskUpdateMembersSchema,
     taskSearchMembersSchema
 }

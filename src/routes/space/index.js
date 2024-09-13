@@ -1,14 +1,23 @@
 import SpaceController from "@/controllers/space.controller";
+import {
+  spaceDestroySchema,
+  spaceGetSchema,
+  spaceSearchSchema,
+  spaceStoreSchema,
+  spaceUpdateSchema,
+} from "@/models/space.model";
 import express from "express";
 
 const router = express.Router();
 
-router.get("/:key", SpaceController.get);
-router.get("/", SpaceController.search);
-router.post("/", SpaceController.store);
-router.put("/:key", SpaceController.update);
-router.delete("/:key", SpaceController.destroy);
-
-router.post("/change_status/:key", SpaceController.changeStatus);
+router.get("/:key", validateRequest(spaceGetSchema), SpaceController.get);
+router.get("/", validateRequest(spaceSearchSchema), SpaceController.search);
+router.post("/", validateRequest(spaceStoreSchema), SpaceController.store);
+router.put("/:key", validateRequest(spaceUpdateSchema), SpaceController.update);
+router.delete(
+  "/:key",
+  validateRequest(spaceDestroySchema),
+  SpaceController.destroy
+);
 
 module.exports = router;

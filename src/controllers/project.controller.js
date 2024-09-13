@@ -1,58 +1,58 @@
 import ProjectService, { ProjectMemberService } from "@/services/project.service";
 
 const ProjectController = {
-    get: async (req, res, next) => {
+    get: async (params, req, res, next) => {
         try {
-            const message = await ProjectService.get(req.params);
+            const message = await ProjectService.get(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    search: async (req, res, next) => {
+    search: async (params, req, res, next) => {
         try {
-            const message = await ProjectService.search(req.query);
+            const message = await ProjectService.search(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    store: async (req, res, next) => {
+    store: async (params, req, res, next) => {
         try {
-            const message = await ProjectService.store(req.body);
+            const message = await ProjectService.store(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    update: async (req, res, next) => {
+    update: async (params, req, res, next) => {
         try {
-            const message = await ProjectService.update(req.params, req.body);
+            const message = await ProjectService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    destroy: async (req, res, next) => {
+    destroy: async (params, req, res, next) => {
         try {
-            const message = await ProjectService.destroy(req.params);
+            const message = await ProjectService.destroy(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
     
-    updateMembers: async (req, res, next) => {
+    updateMembers: async (params, req, res, next) => {
         try {
-            const message = await ProjectMemberService.update(req.params, req.body);
+            const message = await ProjectMemberService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    searchMembers: async (req, res, next) => {
+    searchMembers: async (params, req, res, next) => {
         try {
-            const message = await ProjectMemberService.search(req.query);
+            const message = await ProjectMemberService.search(params);
             return res.json(message);
         } catch (errors) {
             next(errors);

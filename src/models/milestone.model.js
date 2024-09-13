@@ -9,7 +9,7 @@ const milestoneGetSchema = JoiCustom.object({
     key: JoiCustom.string().required()
 })
 
-const milestoneGetListSchema = JoiCustom.object({
+const milestoneSearchSchema = JoiCustom.object({
     q: JoiCustom.string().optional(),
 
     user_code: JoiCustom.string().optional(),
@@ -32,8 +32,8 @@ const milestoneStoreSchema = JoiCustom.object({
     begin_date: JoiCustom.date().format("YYYY-MM-DD").default(new Date()).required(),
     due_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('begin_date')).required(),
 
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
 }).unknown()
 
 const milestoneUpdateSchema = JoiCustom.object({
@@ -43,25 +43,25 @@ const milestoneUpdateSchema = JoiCustom.object({
     status: JoiCustom.number().integer().valid(...MilestoneStatusEnumArr).required(),
     description: JoiCustom.string().max(200).required(),
     due_date: JoiCustom.date().format("YYYY-MM-DD").required(),
-
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
 }).unknown()
 
 const milestoneDestroySchema = JoiCustom.object({
     key: JoiCustom.string().required()
 })
 
+//-----------------------------------------------
+const milestoneSearchMembersSchema = JoiCustom.object({
+    key: JoiCustom.string().required(),
+
+    q: JoiCustom.string().required()
+})
+
 const milestoneUpdateMembersSchema = JoiCustom.object({
     key: JoiCustom.string().required(), //MilestoneCode
 
-    members: JoiCustom.array().items(JoiCustom.object()).optional(),
-    teams: JoiCustom.array().items(JoiCustom.object()).optional()
+    members: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+    teams: JoiCustom.array().items(JoiCustom.object()).optional().default([])
 }).unknown()
-
-const milestoneSearchMembersSchema = JoiCustom.object({
-    q: JoiCustom.string().required()
-})
 
 export {
     milestoneKey,
@@ -69,7 +69,7 @@ export {
     milestoneSearchCacheKey,
 
     milestoneGetSchema,
-    milestoneGetListSchema,
+    milestoneSearchSchema,
     milestoneStoreSchema,
     milestoneUpdateSchema,
     milestoneDestroySchema,

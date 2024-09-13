@@ -1,58 +1,58 @@
 import MilestoneService, { MilestoneMemberService } from "@/services/milestone.service";
 
 const MilestoneController = {
-    get: async (req, res, next) => {
+    get: async (params, req, res, next) => {
         try {
-            const message = await MilestoneService.get(req.params);
+            const message = await MilestoneService.get(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    search: async (req, res, next) => {
+    search: async (params, req, res, next) => {
         try {
-            const message = await MilestoneService.search(req.query);
+            const message = await MilestoneService.search(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    store: async (req, res, next) => {
+    store: async (params, req, res, next) => {
         try {
-            const message = await MilestoneService.store(req.body);
+            const message = await MilestoneService.store(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    update: async (req, res, next) => {
+    update: async (params, req, res, next) => {
         try {
-            const message = await MilestoneService.update(req.params, req.body);
+            const message = await MilestoneService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    destroy: async (req, res, next) => {
+    destroy: async (params, req, res, next) => {
         try {
-            const message = await MilestoneService.destroy(req.params);
+            const message = await MilestoneService.destroy(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
 
-    updateMembers: async (req, res, next) => {
+    updateMembers: async (params, req, res, next) => {
         try {
-            const message = await MilestoneMemberService.update(req.params, req.body);
+            const message = await MilestoneMemberService.update(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
         }
     },
-    searchMembers: async (req, res, next) => {
+    searchMembers: async (params, req, res, next) => {
         try {
-            const message = await MilestoneMemberService.search(req.query);
+            const message = await MilestoneMemberService.search(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
