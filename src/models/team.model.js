@@ -25,7 +25,7 @@ const searchParamsSchema = JoiCustom.object({
 
 const idSchema = JoiCustom.string().required();
 
-module.exports = {
+export {
   teamKey,
   teamCacheKey,
   teamSearchCacheKey,
