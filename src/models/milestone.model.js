@@ -17,7 +17,7 @@ const milestoneSearchSchema = JoiCustom.object({
     start_date: JoiCustom.date().format("YYYY-MM-DD").optional(),
     end_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('start_date')).optional(),
     
-    status: JoiCustom.stringArray().valid(...MilestoneStatusEnumArr).optional(),
+    status: JoiCustom.stringArray().items(JoiCustom.number().integer().valid(...MilestoneStatusEnumArr)).optional(),
     members: JoiCustom.stringArray().items(JoiCustom.string()).optional(), //List member's codes
     teams: JoiCustom.stringArray().items(JoiCustom.string()).optional() //List team's codes
 })
