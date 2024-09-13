@@ -1,6 +1,7 @@
 import { milestoneKey } from "@/models/milestone.model";
 import { projectKey } from "@/models/project.model";
 import { spaceKey } from "@/models/space.model";
+import { taskKey } from "@/models/task.model";
 import { teamKey } from "@/models/team.model";
 
 const splitArr = (arr, char, attr) => {
@@ -23,6 +24,7 @@ const typeTableKey = {
     [spaceKey]: 'SPA_',
     [projectKey]: 'PRJ_',
     [milestoneKey]: 'MST_',
+    [taskKey]: 'TSK_',
     [teamKey]: 'TEA_',
 }
 const generateCode = (type, now, name) => {
