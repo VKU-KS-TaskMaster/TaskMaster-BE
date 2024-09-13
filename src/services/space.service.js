@@ -70,11 +70,11 @@ const SpaceService = {
 
         return ResponseTrait.success(resData)
     },
-    update: async (params, body) => {
+    update: async (params) => {
         const { key } = params
 
         const docRef = collection(db, "space");
-        const docQuery = query(docRef, where("code", "==", value.key))
+        const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) ResponseTrait.error('No such Space!')
@@ -94,7 +94,7 @@ const SpaceService = {
         const { key } = params
 
         const docRef = collection(db, "space");
-        const docQuery = query(docRef, where("code", "==", value.key))
+        const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) ResponseTrait.error('No such Space!')
