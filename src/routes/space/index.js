@@ -1,4 +1,5 @@
-import SpaceController from "@/controllers/space.controller";
+import express from "express";
+
 import {
   spaceDestroySchema,
   spaceGetSchema,
@@ -6,7 +7,8 @@ import {
   spaceStoreSchema,
   spaceUpdateSchema,
 } from "@/models/space.model";
-import express from "express";
+import SpaceController from "@/controllers/space.controller";
+import validateRequest from "@/middlewares/validateRequest.middleware";
 
 const router = express.Router();
 

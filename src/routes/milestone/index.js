@@ -1,6 +1,5 @@
 import express from "express";
 
-import MilestoneController from "@/controllers/milestone.controller";
 import {
   milestoneDestroySchema,
   milestoneGetSchema,
@@ -10,6 +9,8 @@ import {
   milestoneUpdateMembersSchema,
   milestoneUpdateSchema,
 } from "@/models/milestone.model";
+import MilestoneController from "@/controllers/milestone.controller";
+import validateRequest from "@/middlewares/validateRequest.middleware";
 
 const router = express.Router();
 

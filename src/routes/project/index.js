@@ -1,6 +1,5 @@
 import express from "express";
 
-import ProjectController from "@/controllers/project.controller";
 import {
   projectSearchSchema,
   projectGetSchema,
@@ -10,6 +9,8 @@ import {
   projectUpdateMembersSchema,
   projectSearchMembersSchema,
 } from "@/models/project.model";
+import ProjectController from "@/controllers/project.controller";
+import validateRequest from "@/middlewares/validateRequest.middleware";
 
 const router = express.Router();
 

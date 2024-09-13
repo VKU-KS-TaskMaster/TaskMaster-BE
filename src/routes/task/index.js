@@ -1,7 +1,5 @@
 import express from "express";
 
-import TaskController from "@/controllers/task.controller";
-import validateRequest from "@/middlewares/validateRequest.middleware";
 import {
   taskDestroySchema,
   taskGetListSchema,
@@ -12,6 +10,8 @@ import {
   taskUpdateSchema,
   taskUpdateByMemberSchema,
 } from "@/models/task.model";
+import TaskController from "@/controllers/task.controller";
+import validateRequest from "@/middlewares/validateRequest.middleware";
 
 const router = express.Router();
 
