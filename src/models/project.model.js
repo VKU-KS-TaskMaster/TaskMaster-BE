@@ -17,9 +17,9 @@ const projectSearchSchema = JoiCustom.object({
     start_date: JoiCustom.date().format("YYYY-MM-DD").optional(),
     end_date: JoiCustom.date().format("YYYY-MM-DD").min(JoiCustom.ref('start_date')).optional(),
     
-    status: JoiCustom.stringArray().splitStr(',').valid(...ProjectStatusEnumArr).optional(),
-    members: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional(), //List member's codes
-    teams: JoiCustom.stringArray().splitStr(',').items(JoiCustom.string()).optional() //List team's codes
+    status: JoiCustom.stringArray().valid(...ProjectStatusEnumArr).optional(),
+    members: JoiCustom.stringArray().items(JoiCustom.string()).optional(), //List member's codes
+    teams: JoiCustom.stringArray().items(JoiCustom.string()).optional() //List team's codes
 })
 
 const projectStoreSchema = JoiCustom.object({

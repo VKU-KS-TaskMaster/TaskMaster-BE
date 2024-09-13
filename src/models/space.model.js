@@ -13,7 +13,7 @@ const spaceSearchSchema = JoiCustom.object({
     q: JoiCustom.string().optional(),
     user_code: JoiCustom.string().optional(),
     
-    status: JoiCustom.stringArray().splitStr(',').items(JoiCustom.number().integer()).optional(),
+    status: JoiCustom.stringArray().items(JoiCustom.number().integer()).optional(),
 })
 
 const spaceStoreSchema = JoiCustom.object({
