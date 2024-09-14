@@ -77,7 +77,7 @@ const SpaceService = {
         const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
+        if (docSnap.empty) return ResponseTrait.error('No such Space!')
 
         delete params.key
         await updateDoc(docSnap.docs[0].ref, {
@@ -97,7 +97,7 @@ const SpaceService = {
         const docQuery = query(docRef, where("code", "==", key))
         const docSnap = await getDocs(docQuery);
 
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
+        if (docSnap.empty) return ResponseTrait.error('No such Space!')
 
         await updateDoc(docSnap.docs[0].ref, {
             status: SPACE_STATUS_DELETED,

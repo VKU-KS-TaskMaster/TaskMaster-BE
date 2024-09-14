@@ -1,4 +1,4 @@
-import { addDoc, and, collection, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
 
 import RedisClient from "@/core/redisCache.config";
 import ResponseTrait from "@/core/responseTrait";
@@ -21,7 +21,7 @@ const TaskService = {
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) {
-            return ResponseTrait.error();
+            return ResponseTrait.error("No such Task");
         }
 
         resData = docSnap.docs[0].data();
@@ -49,11 +49,11 @@ const TaskService = {
         if (status && status.length > 0) docQuery = query(docQuery, where('status', 'in', status))
 
         if (members && members.length > 0) {
-            docQuery = query(docQuery, where('memberCodes', 'array-contains-any', members))
+            docQuery = query(docQuery, where('member_codes', 'array-contains-any', members))
         }
 
         if (teams && teams.length > 0) {
-            docQuery = query(docQuery, where('teams', 'array-contains-any', teams))
+            docQuery = query(docQuery, where('team_codes', 'array-contains-any', teams))
         }
 
         const docSnap = await getDocs(docQuery);
@@ -122,7 +122,7 @@ const TaskService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) ResponseTrait.error('No such Milestone!')
+        if (docSnap.empty) return ResponseTrait.error('No such Milestone!')
 
         await updateDoc(docSnap.docs[0].ref, {
             status: TASK_STATUS_DELETED,
@@ -145,7 +145,7 @@ const TaskService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (docSnap.empty) ResponseTrait.error('No such Space!')
+        if (docSnap.empty) return ResponseTrait.error('No such Space!')
 
         const dataUpdate = {
             status: status,
@@ -182,7 +182,7 @@ const TaskMemberService = {
             entData = docSnap.docs[0].data()
         }
 
-        const memberCodes = entData.memberCodes
+        const memberCodes = entData.member_codes
 
         const docRef = collection(db, "user");
         let docQuery = query(docRef, where("code", "in", memberCodes));
@@ -219,8 +219,8 @@ const TaskMemberService = {
         const resData = await updateDoc(docSnap.docs[0].ref, {
             members: members,
             teams: teams,
-            memberCodes: memberCodes,
-            teamCodes: teamCodes
+            member_codes: memberCodes,
+            team_codes: teamCodes
         })
 
         return ResponseTrait.success(resData)

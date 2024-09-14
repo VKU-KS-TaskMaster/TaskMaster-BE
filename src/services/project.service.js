@@ -20,7 +20,7 @@ const ProjectService = {
         const docSnap = await getDocs(docQuery);
 
         if (docSnap.empty) {
-            return ResponseTrait.error()
+            return ResponseTrait.error("No such Project")
         }
 
         resData = docSnap.docs[0].data()
@@ -48,11 +48,11 @@ const ProjectService = {
         if (status && status.length > 0) docQuery = query(docQuery, where('status', 'in', status))
 
         if (members && members.length > 0) {
-            docQuery = query(docQuery, where('memberCodes', 'array-contains-any', members))
+            docQuery = query(docQuery, where('member_codes', 'array-contains-any', members))
         }
 
         if (teams && teams.length > 0) {
-            docQuery = query(docQuery, where('teams', 'array-contains-any', teams))
+            docQuery = query(docQuery, where('team_codes', 'array-contains-any', teams))
         }
 
         const docSnap = await getDocs(docQuery);
@@ -119,7 +119,7 @@ const ProjectService = {
 
         const docSnap = await getDocs(docQuery);
 
-        if (!docSnap.empty) ResponseTrait.error('No such Project!')
+        if (docSnap.empty) return ResponseTrait.error('No such Project!')
 
         delete params.key
         await updateDoc(docSnap.docs[0].ref, {
@@ -154,7 +154,7 @@ const ProjectMemberService = {
             entData = docSnap.docs[0].data()
         }
 
-        const memberCodes = entData.memberCodes
+        const memberCodes = entData.member_codes
 
         const docRef = collection(db, "user");
         let docQuery = query(docRef, where("code", "in", memberCodes));
@@ -191,8 +191,8 @@ const ProjectMemberService = {
         const resData = await updateDoc(docSnap.docs[0].ref, {
             members: members,
             teams: teams,
-            memberCodes: memberCodes,
-            teamCodes: teamCodes
+            member_codes: memberCodes,
+            team_codes: teamCodes
         })
 
         return ResponseTrait.success(resData)
