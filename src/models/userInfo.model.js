@@ -1,36 +1,45 @@
-import JoiCustom from "@/core/joiCustom.config"
+import JoiCustom from "@/core/joiCustom.config";
+
+const userInfoKey = "userInfo";
+const userInfoCacheKey = "userInfo_:code_";
+const userInfoSearchCacheKey = "userInfo.search_:code_";
 
 const userInfoGetSchema = JoiCustom.object({
-    search: JoiCustom.string().optional(),
-})
+  key: JoiCustom.string().required(),
+});
+
+const userInfoSearchSchema = JoiCustom.object({
+  q: JoiCustom.string().optional(),
+});
 
 const userInfoStoreSchema = JoiCustom.object({
-    user_name: JoiCustom.string().required(),
-    // email_address: JoiCustom.string().optional(),
-    code: JoiCustom.string().optional(),
-    first_name: JoiCustom.string().optional(),
-    last_name: JoiCustom.string().optional(),
-})
+  user_name: JoiCustom.string().required(),
+  first_name: JoiCustom.string().optional(),
+  last_name: JoiCustom.string().optional(),
+  // email_address: JoiCustom.string().optional(),
+  // phone_number: JoiCustom.string().optional(),
+}).unknown();
 
 const userInfoUpdateSchema = JoiCustom.object({
-    user_name: JoiCustom.string().optional(),
-    code: JoiCustom.string().optional(),
-    first_name: JoiCustom.string().optional(),
-    last_name: JoiCustom.string().optional(),
-})
-
-const userInfoUpdatePasswordSchema = JoiCustom.object({
-    pass_word: JoiCustom.string().required(),
-    repeat_pass_word: JoiCustom.string().required(),
-})
-
-const userInfoUpdateStatusSchema = JoiCustom.object({
-    code: JoiCustom.string().required(),
-    status: JoiCustom.number().integer().required(),
-})
+  user_name: JoiCustom.string().optional(),
+  first_name: JoiCustom.string().optional(),
+  last_name: JoiCustom.string().optional(),
+  // email_address: JoiCustom.string().optional(),
+  // phone_number: JoiCustom.string().optional(),
+}).unknown();
 
 const userInfoDestroySchema = JoiCustom.object({
-    code: JoiCustom.string().required(),
-})
+  code: JoiCustom.string().required(),
+});
 
-export { userInfoGetSchema, userInfoStoreSchema, userInfoUpdateSchema, userInfoUpdatePasswordSchema, userInfoUpdateStatusSchema, userInfoDestroySchema }
+export {
+  userInfoKey,
+  userInfoCacheKey,
+  userInfoSearchCacheKey,
+  
+  userInfoGetSchema,
+  userInfoSearchSchema,
+  userInfoStoreSchema,
+  userInfoUpdateSchema,
+  userInfoDestroySchema,
+};

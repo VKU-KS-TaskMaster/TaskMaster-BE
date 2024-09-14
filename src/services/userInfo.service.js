@@ -1,100 +1,87 @@
-import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { addDoc, and, collection, deleteDoc, getDoc, getDocs, or, query, updateDoc } from "firebase/firestore";
 
+import RedisClient from "@/core/redisCache.config";
+import ResponseTrait from "@/core/responseTrait";
 import { db } from "@/core/firebase.config";
-import { userInfoGetSchema, userInfoStoreSchema, userInfoUpdateSchema } from "@/models/userInfo.model";
 
 const UserInfoService = {
-    store: async (params) => {
-        try {
-            // await setDoc(doc(db, "user_info"), {
-            //     name: "Los Angeles",
-            //     state: "CA",    
-            //     country: "USA"
-            // });
-            const { error, value } = userInfoStoreSchema.validate(params);
+    get: async (params) => {
+        const { key } = params
 
-            if (error) {
-                throw new Error(`Validation error: ${error.details[0].message}`);
-            }
+        const docRef = collection(db, "user_info");
+        const docQuery = query(docRef, where("user_code", "==", key))
+        const docSnap = await getDocs(docQuery);
 
-            try {
+        if (docSnap.empty) return ResponseTrait.error('No such User Info!')
 
-            } catch (e) {
-                console.error("Error adding document: ", e);
-            }
+        resData = docSnap.docs[0].data();
 
-            const docRef = await addDoc(collection(db, "user_info"), {
-                first_name: user.email?.split('@')[0] || "",
-                user_id: user.uid
-            });
-            console.log("Document written with ID: ", docRef.id);
+        return ResponseTrait.success(resData);
+    },
+    search: async (params) => {
+        const { q } = params
 
-            return docRef
-        } catch (e) {
-            console.error("Error adding document: ", e);
+        const docRef = collection(db, "user_info");
+        let docQuery = query(docRef)
+
+        if (q && q.trim().length > 0) {
+            const attrs = ['code', 'name', 'description']
+
+            docQuery = query(docQuery, or(...attrs.map(a => and(
+                where(a, ">=", q),
+                where(a, "<=", q + '\uf8ff')
+            ))))
         }
+
+        const docSnap = await getDocs(docQuery);
+        const resData = docSnap.docs.map(doc => doc.data())
+
+        return ResponseTrait.success(resData);
+    },
+    store: async (params) => {
+        const dateNow = new Date()
+
+        const docRef = collection(db, "user_info");
+        const docDoc = await addDoc(docRef, {
+            ...params,
+            created_at: dateNow
+        });
+
+        const resData = (await getDoc(docDoc)).data()
+
+        return ResponseTrait.success(resData)
     },
     update: async (params) => {
-        const { error, value } = userInfoUpdateSchema.validate(params);
+        const { key } = params
 
-        if (error) {
-            throw new Error(`Validation error: ${error.details[0].message}`);
-        }
+        const docRef = collection(db, "space");
+        const docQuery = query(docRef, where("user_code", "==", key))
+        const docSnap = await getDocs(docQuery);
 
-        try {
+        if (docSnap.empty) return ResponseTrait.error('No such User Info!')
 
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    },
-    getList: async (params) => {
-        const { error, value } = userInfoGetSchema.validate(params);
+        delete params.key
+        await updateDoc(docSnap.docs[0].ref, {
+            ...params,
+            updated_at: new Date()
+        })
 
-        if (error) {
-            throw new Error(`Validation error: ${error.details[0].message}`);
-        }
+        const resData = (await getDoc(docSnap.docs[0].ref)).data()
 
-        try {
-            const docRef = doc(db, "", "");
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                console.log("Document data:", docSnap.data());
-            } else {
-                // docSnap.data() will be undefined in this case
-                console.log("No such document!");
-            }
-
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    },
-    get: async (params) => {
-        const { error, value } = userInfoGetSchema.validate(params);
-
-        if (error) {
-            throw new Error(`Validation error: ${error.details[0].message}`);
-        }
-
-        try {
-            const docRef = doc(db, "", "");
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                console.log("Document data:", docSnap.data());
-            } else {
-                // docSnap.data() will be undefined in this case
-                console.log("No such document!");
-            }
-        } catch (e) {
-            console.error("Error adding document: ", e);
-        }
-    },
-    updateStatus: async (params) => {
-
+        return ResponseTrait.success(resData)
     },
     destroy: async (params) => {
+        const { key } = params
 
+        const docRef = collection(db, "user_info");
+        const docQuery = query(docRef, where("user_code", "==", key))
+        const docSnap = await getDocs(docQuery);
+
+        if (docSnap.empty) return ResponseTrait.error('No such User Info!')
+
+        await deleteDoc(docSnap.docs[0].ref)
+
+        return ResponseTrait.success()
     }
 }
 

@@ -1,14 +1,37 @@
 import express from "express";
 
+import {
+    userInfoDestroySchema,
+    userInfoGetSchema,
+    userInfoSearchSchema,
+    userInfoStoreSchema,
+    userInfoUpdateSchema,
+  } from "@/models/userInfo.model";
 import UserInfoController from "@/controllers/userInfo.controller";
+import validateRequest from "@/middlewares/validateRequest.middleware";
 
 const router = express.Router();
 
-router.get("/getList", UserInfoController.getList);
-router.get("/get", UserInfoController.get);
-router.post("/store", UserInfoController.store);
-router.post("/update", UserInfoController.update)
-router.post("/update_status", UserInfoController.updateStatus);
-router.post("/destroy", UserInfoController.destroy);
+router.get("/get", validateRequest(userInfoGetSchema), UserInfoController.get);
+router.get(
+  "/search",
+  validateRequest(userInfoSearchSchema),
+  UserInfoController.search
+);
+router.post(
+  "/",
+  validateRequest(userInfoStoreSchema),
+  UserInfoController.store
+);
+router.put(
+  "/",
+  validateRequest(userInfoUpdateSchema),
+  UserInfoController.update
+);
+router.delete(
+  "/:key",
+  validateRequest(userInfoDestroySchema),
+  UserInfoController.destroy
+);
 
 module.exports = router;
