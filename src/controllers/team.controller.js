@@ -30,6 +30,7 @@ const TeamController = {
   store: async (req, res, next) => {
     try {
       const team = await TeamService.store(req.body);
+      console.log("🚀 ~ store: ~ req.body:", req.body);
       return res.send(team);
     } catch (errors) {
       next(errors);
@@ -39,6 +40,7 @@ const TeamController = {
     try {
       const { code } = req.params;
       const updatedTeam = await TeamService.update(code, req.body);
+      console.log("🚀 ~ update: ~ req.body:", req.body);
       return res.send(updatedTeam);
     } catch (errors) {
       next(errors);
@@ -53,6 +55,15 @@ const TeamController = {
       next(errors);
     }
   },
+  addMembers: async (req, res, next) => {
+    try {
+
+      const message = await TeamService.addMember(req.body);
+      return res.send(message);
+    } catch (errors) {
+      next(errors);
+    }
+  }
 };
 
 export default TeamController;

@@ -1,5 +1,6 @@
-import TeamStatusEnumArr from "@/enums/TeamStatusEnum";
 import JoiCustom from "@/core/joiCustom.config";
+import TeamMemberTypeEnumArr from "@/enums/team/TeamMemberEnum";
+import TeamStatusEnumArr from "@/enums/team/TeamStatusEnum";
 
 const teamKey = "team";
 const teamCacheKey = "team_:code_";
@@ -9,6 +10,13 @@ const teamSchema = JoiCustom.object({
   name: JoiCustom.string().max(200).required(),
   description: JoiCustom.string().allow("", null),
   status: JoiCustom.number().integer().valid(...TeamStatusEnumArr).required(),
+  members: JoiCustom.array().items(
+    JoiCustom.object({
+      user_code: JoiCustom.string().required(),
+      type: JoiCustom.number().integer().valid(...TeamMemberTypeEnumArr).required(),
+      joined_at: JoiCustom.date().required(),
+    })
+  ).default([]),
 });
 
 const teamUpdateSchema = JoiCustom.object({
@@ -23,15 +31,9 @@ const searchParamsSchema = JoiCustom.object({
   status: JoiCustom.array().items(JoiCustom.number().integer()).optional(),
 })
 
-const idSchema = JoiCustom.string().required();
+const idTeamSchema = JoiCustom.string().required();
 
 export {
-  teamKey,
-  teamCacheKey,
-  teamSearchCacheKey,
-
-  teamSchema,
-  teamUpdateSchema,
-  searchParamsSchema,
-  idSchema
+  idTeamSchema, searchParamsSchema, teamCacheKey, teamKey, teamSchema, teamSearchCacheKey, teamUpdateSchema
 };
+

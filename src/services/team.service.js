@@ -4,10 +4,11 @@ import ResponseTrait from "@/core/responseTrait";
 import {
   TEAM_STATUS_DELETED,
   TEAM_STATUS_PENDING,
-} from "@/enums/TeamStatusEnum";
+} from "@/enums/team/TeamStatusEnum";
 import { teamKey } from "@/models/team.model";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDocs,
@@ -99,6 +100,44 @@ const TeamService = {
       status: TEAM_STATUS_DELETED,
       updated_at: new Date(),
     });
+  },
+  addMember: async (params) => {
+    const { team_code, members } = params;
+    const dateNow = new Date();
+
+    const teamRef = query(
+      collection(db, "team"),
+      where("code", "==", team_code)
+    );
+    const querySnapshot = await getDocs(teamRef);
+    if (querySnapshot.empty) {
+      ResponseTrait.error(`No team found with code: ${team_code}`);
+    }
+
+    // Check if user exists
+    // for (const member of members) {
+    //   const { user_code } = member;
+    //   const userRef = query(
+    //     collection(db, "user"),
+    //     where("code", "==", user_code)
+    //   );
+    //   const userQuerySnapshot = await getDocs(userRef);
+    //   if (userQuerySnapshot.empty) {
+    //     ResponseTrait.error(`No user found with code: ${email}`);
+    //   }
+    // }
+
+    // Add members to team
+    await updateDoc(doc(db, "team", querySnapshot.docs[0].id), {
+      members: arrayUnion(
+        ...members.map((m) => ({
+          ...m,
+          joined_at: dateNow,
+        }))
+      ),
+    });
+
+    return ResponseTrait.success("Members added successfully");
   },
 };
 
