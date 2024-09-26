@@ -1,4 +1,4 @@
-import ProjectService, { ProjectMemberService } from "@/services/project.service";
+import ProjectService, { ProjectMemberService, ProjectTeamService } from "@/services/project.service";
 
 const ProjectController = {
     get: async (params, req, res, next) => {
@@ -53,6 +53,22 @@ const ProjectController = {
     searchMembers: async (params, req, res, next) => {
         try {
             const message = await ProjectMemberService.search(params);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    },
+    addTeam: async (params, req, res, next) => {
+        try {
+            const message = await ProjectTeamService.addTeamToProject(params);
+            return res.json(message);
+        } catch (errors) {
+            next(errors);
+        }
+    },
+    removeTeam: async (params, req, res, next) => {
+        try {
+            const message = await ProjectTeamService.removeTeamFromProject(params);
             return res.json(message);
         } catch (errors) {
             next(errors);
