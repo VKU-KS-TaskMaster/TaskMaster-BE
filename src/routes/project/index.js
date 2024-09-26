@@ -1,16 +1,18 @@
 import express from "express";
 
-import {
-  projectSearchSchema,
-  projectGetSchema,
-  projectStoreSchema,
-  projectUpdateSchema,
-  projectDestroySchema,
-  projectUpdateMembersSchema,
-  projectSearchMembersSchema,
-} from "@/models/project.model";
 import ProjectController from "@/controllers/project.controller";
 import validateRequest from "@/middlewares/validateRequest.middleware";
+import {
+  projectAddTeamSchema,
+  projectDestroySchema,
+  projectGetSchema,
+  projectRemoveTeamSchema,
+  projectSearchMembersSchema,
+  projectSearchSchema,
+  projectStoreSchema,
+  projectUpdateMembersSchema,
+  projectUpdateSchema,
+} from "@/models/project.model";
 
 const router = express.Router();
 
@@ -37,6 +39,19 @@ router.post(
   "/:key/update_members",
   validateRequest(projectUpdateMembersSchema),
   ProjectController.updateMembers
+);
+
+// Team
+router.post(
+  "/:key/add_team",
+  validateRequest(projectAddTeamSchema),
+  ProjectController.addTeam
+);
+
+router.post(
+  "/:key/remove_team",
+  validateRequest(projectRemoveTeamSchema),
+  ProjectController.removeTeam
 );
 
 module.exports = router;

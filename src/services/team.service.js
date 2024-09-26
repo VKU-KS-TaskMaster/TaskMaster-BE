@@ -1,5 +1,5 @@
 import { db } from "@/core/firebase.config";
-import { generateCode } from "@/core/helper";
+import { deleteKeysFromObject, generateCode } from "@/core/helper";
 import ResponseTrait from "@/core/responseTrait";
 import {
   TEAM_STATUS_DELETED,
@@ -11,6 +11,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   updateDoc,
@@ -18,18 +19,20 @@ import {
 } from "firebase/firestore";
 
 const TeamService = {
-  get: async (code) => {
-    const teamQuery = query(collection(db, "team"), where("code", "==", code));
+  get: async (params) => {
+    const { key } = params
+
+    const teamQuery = query(collection(db, "team"), where("code", "==", key));
     const querySnapshot = await getDocs(teamQuery);
     if (querySnapshot.empty) {
-      ResponseTrait.error(`No team found with code: ${code}`);
+      ResponseTrait.error(`No team found with code: ${key}`);
     }
 
     const teamDoc = querySnapshot.docs[0];
     return ResponseTrait.success({ id: teamDoc.id, ...teamDoc.data() });
   },
-  getList: async (searchParams = {}) => {
-    const { name, code, status } = searchParams;
+  search: async (params) => {
+    const { name, code, status } = params;
     let q = collection(db, "team");
     const conditions = [];
 
@@ -54,8 +57,8 @@ const TeamService = {
     return ResponseTrait.success(teams);
   },
 
-  store: async (teamData) => {
-    const { name, description } = teamData;
+  store: async (params) => {
+    const { name, description } = params;
     const dateNow = new Date();
 
     const newTeam = {
@@ -71,14 +74,18 @@ const TeamService = {
 
     return ResponseTrait.success({ id: docRef.id, ...newTeam });
   },
-  update: async (code, updateData) => {
-    const teamQuery = query(collection(db, "team"), where("code", "==", code));
+  update: async (params) => {
+    const { key } = params
+
+    const teamQuery = query(collection(db, "team"), where("code", "==", key));
     const querySnapshot = await getDocs(teamQuery);
     if (querySnapshot.empty) {
-      ResponseTrait.error(`No team found with code: ${code}`);
+      ResponseTrait.error(`No team found with key: ${key}`);
     }
 
     const teamDoc = querySnapshot.docs[0];
+
+    const updateData = deleteKeysFromObject(params, ['key'])
     const dataToUpdate = {
       ...updateData,
       updated_at: new Date(),
@@ -86,13 +93,17 @@ const TeamService = {
 
     await updateDoc(doc(db, "team", teamDoc.id), dataToUpdate);
 
-    return ResponseTrait.success({ id: teamDoc.id, code, ...dataToUpdate });
+    const resData = (await getDoc(teamDoc.ref)).data()
+
+    return ResponseTrait.success({ id: teamDoc.id, ...resData });
   },
-  destroy: async (code) => {
-    const teamQuery = query(collection(db, "team"), where("code", "==", code));
+  destroy: async (params) => {
+    const { key } = params
+
+    const teamQuery = query(collection(db, "team"), where("code", "==", key));
     const querySnapshot = await getDocs(teamQuery);
     if (querySnapshot.empty) {
-      ResponseTrait.error(`No team found with code: ${code}`);
+      ResponseTrait.error(`No team found with key: ${key}`);
     }
 
     const teamDoc = querySnapshot.docs[0];

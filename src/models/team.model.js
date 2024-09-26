@@ -20,6 +20,8 @@ const teamSchema = JoiCustom.object({
 });
 
 const teamUpdateSchema = JoiCustom.object({
+  key: JoiCustom.string().required(),
+
   name: JoiCustom.string().max(200),
   description: JoiCustom.string().allow("", null),
   status: JoiCustom.number().integer().valid(...TeamStatusEnumArr).required(),
@@ -28,12 +30,15 @@ const teamUpdateSchema = JoiCustom.object({
 const searchParamsSchema = JoiCustom.object({
   name: JoiCustom.string().optional(),
   code: JoiCustom.string().optional(),
-  status: JoiCustom.array().items(JoiCustom.number().integer()).optional(),
+  
+  status: JoiCustom.stringArray().items(JoiCustom.number().integer().valid(...TeamStatusEnumArr)).optional()
 })
 
-const idTeamSchema = JoiCustom.string().required();
+const teamGetSchema = JoiCustom.object({
+  key: JoiCustom.string().required()
+})
 
 export {
-  idTeamSchema, searchParamsSchema, teamCacheKey, teamKey, teamSchema, teamSearchCacheKey, teamUpdateSchema
+  teamGetSchema, searchParamsSchema, teamCacheKey, teamKey, teamSchema, teamSearchCacheKey, teamUpdateSchema
 };
 
