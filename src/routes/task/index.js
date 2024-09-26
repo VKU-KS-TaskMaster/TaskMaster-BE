@@ -2,7 +2,7 @@ import express from "express";
 
 import {
   taskDestroySchema,
-  taskGetListSchema,
+  taskSearchSchema,
   taskGetSchema,
   taskSearchMembersSchema,
   taskStoreSchema,
@@ -16,7 +16,7 @@ import validateRequest from "@/middlewares/validateRequest.middleware";
 const router = express.Router();
 
 router.get("/:key", validateRequest(taskGetSchema), TaskController.get);
-router.get("/", validateRequest(taskGetListSchema), TaskController.search);
+router.get("/", validateRequest(taskSearchSchema), TaskController.search);
 router.post("/", validateRequest(taskStoreSchema), TaskController.store);
 router.put("/:key", validateRequest(taskUpdateSchema), TaskController.update);
 router.delete(
@@ -32,10 +32,10 @@ router.post(
 );
 
 router.get(
-    "/search_members",
-    validateRequest(taskSearchMembersSchema),
-    TaskController.searchMembers
-  );
+  "/search_members",
+  validateRequest(taskSearchMembersSchema),
+  TaskController.searchMembers
+);
 router.post(
   "/:key/update_members",
   validateRequest(taskUpdateMembersSchema),
