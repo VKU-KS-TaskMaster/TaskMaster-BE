@@ -1,65 +1,51 @@
 import TeamService from "@/services/team.service";
 
 const TeamController = {
-  get: async (req, res, next) => {
+  get: async (params, req, res, next) => {
     try {
-      const { code } = req.params;
-      const message = await TeamService.get(code);
-      return res.send(message);
+      const message = await TeamService.get(params);
+      return res.json(message);
     } catch (errors) {
       next(errors);
     }
   },
-  getList: async (req, res, next) => {
+  search: async (params, req, res, next) => {
     try {
-      const { name, code, status } = req.query;
-      const searchParams = {};
-      if (name) searchParams.name = name;
-      if (code) searchParams.code = code;
-      if (status)
-        searchParams.status = status
-          .split(",")
-          .map((s) => parseInt(s.trim(), 10));
-
-      const teams = await TeamService.getList(searchParams);
-      return res.send(teams);
+      const teams = await TeamService.search(params);
+      return res.json(teams);
     } catch (errors) {
       next(errors);
     }
   },
-  store: async (req, res, next) => {
+  store: async (params, req, res, next) => {
     try {
-      const team = await TeamService.store(req.body);
-      console.log("🚀 ~ store: ~ req.body:", req.body);
-      return res.send(team);
+      const team = await TeamService.store(params);
+      return res.json(team);
     } catch (errors) {
       next(errors);
     }
   },
-  update: async (req, res, next) => {
+  update: async (params, req, res, next) => {
     try {
-      const { code } = req.params;
-      const updatedTeam = await TeamService.update(code, req.body);
-      console.log("🚀 ~ update: ~ req.body:", req.body);
-      return res.send(updatedTeam);
+      const updatedTeam = await TeamService.update(params);
+      return res.json(updatedTeam);
     } catch (errors) {
       next(errors);
     }
   },
-  destroy: async (req, res, next) => {
+  destroy: async (params, req, res, next) => {
     try {
-      const { code } = req.params;
-      await TeamService.destroy(code);
-      return res.send({ message: "Team deleted successfully" });
+      await TeamService.destroy(params);
+      return res.json({ message: "Team deleted successfully" });
     } catch (errors) {
       next(errors);
     }
   },
-  addMembers: async (req, res, next) => {
+  addMembers: async (params, req, res, next) => {
     try {
 
-      const message = await TeamService.addMember(req.body);
-      return res.send(message);
+      const message = await TeamService.addMember(params);
+      return res.json(message);
     } catch (errors) {
       next(errors);
     }

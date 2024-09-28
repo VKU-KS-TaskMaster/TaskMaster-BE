@@ -1,5 +1,5 @@
-import ProjectStatusEnumArr from "@/enums/project/ProjectStatusEnum";
 import JoiCustom from "@/core/joiCustom.config";
+import ProjectStatusEnumArr from "@/enums/project/ProjectStatusEnum";
 
 const projectKey = "project";
 const projectCacheKey = "project_:code_";
@@ -100,15 +100,27 @@ const projectUpdateMembersSchema = JoiCustom.object({
   teams: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
 });
 
+const projectAddTeamSchema = JoiCustom.object({
+  key: JoiCustom.string().required(), //ProjectCode
+  teamData: JoiCustom.array().items(JoiCustom.object()).optional().default([]),
+}).unknown();
+
+const projectRemoveTeamSchema = JoiCustom.object({
+  key: JoiCustom.string().required(),
+  teamCode: JoiCustom.string().required(),
+}).unknown();
+
 export {
-  projectKey,
+  projectAddTeamSchema,
   projectCacheKey,
-  projectSearchCacheKey,
+  projectDestroySchema,
   projectGetSchema,
+  projectKey,
+  projectRemoveTeamSchema,
+  projectSearchCacheKey,
+  projectSearchMembersSchema,
   projectSearchSchema,
   projectStoreSchema,
-  projectUpdateSchema,
-  projectDestroySchema,
   projectUpdateMembersSchema,
-  projectSearchMembersSchema,
+  projectUpdateSchema,
 };

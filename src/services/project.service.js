@@ -10,10 +10,10 @@ import {
   where,
 } from "firebase/firestore";
 
-import RedisClient from "@/core/redisCache.config";
-import ResponseTrait from "@/core/responseTrait";
 import { db } from "@/core/firebase.config";
 import { generateCode } from "@/core/helper";
+import RedisClient from "@/core/redisCache.config";
+import ResponseTrait from "@/core/responseTrait";
 import { PROJECT_STATUS_DELETED } from "@/enums/project/ProjectStatusEnum";
 import { projectCacheKey, projectKey } from "@/models/project.model";
 
@@ -246,6 +246,52 @@ const ProjectMemberService = {
   },
 };
 
+const ProjectTeamService = {
+  addTeamToProject: async (params) => {
+    const { key, teamData } = params;
+    const docRef = collection(db, "project");
+    const docQuery = query(docRef, where("code", "==", key));
+    const docSnap = await getDocs(docQuery);
+
+    if (docSnap.empty) {
+      return ResponseTrait.error("No such Project");
+    }
+
+    resData = docSnap.docs[0].data();
+
+    const updatedTeams = [...resData.teams, teamData];
+
+    await updateDoc(docSnap.docs[0].ref, {
+      teams: updatedTeams,
+      updated_at: new Date(),
+    });
+    const resData = (await getDoc(docSnap.docs[0].ref)).data();
+    return resData;
+  },
+  removeTeamFromProject: async (params) => {
+    const { key, teamCode } = params;
+    const docRef = collection(db, "project");
+    const docQuery = query(docRef, where("code", "==", key));
+    const docSnap = await getDocs(docQuery);
+
+    if (docSnap.empty) {
+      return ResponseTrait.error("No such Project");
+    }
+
+    resData = docSnap.docs[0].data();
+    const updatedTeams = projectData.teams.filter(
+      (team) => team.id !== teamCode
+    );
+    await updateDoc(docSnap.docs[0].ref, {
+      teams: updatedTeams,
+      updated_at: new Date(),
+    });
+
+    const resData = (await getDoc(docSnap.docs[0].ref)).data();
+    return resData;
+  },
+};
+
 export default ProjectService;
 
-export { ProjectMemberService };
+export { ProjectMemberService, ProjectTeamService };
