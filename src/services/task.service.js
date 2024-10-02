@@ -1,47 +1,44 @@
-import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from "firebase/firestore";
+import { addDoc, and, collection, getDoc, getDocs, or, query, updateDoc, where } from 'firebase/firestore'
 
-import RedisClient from "@/core/redisCache.config";
-import ResponseTrait from "@/core/responseTrait";
-import { db } from "@/core/firebase.config";
-import { generateCode } from "@/core/helper";
-import { TASK_STATUS_DELETED } from "@/enums/task/TaskStatusEnum";
-import { projectCacheKey } from "@/models/project.model";
-import { taskCacheKey, taskKey } from "@/models/task.model";
+import RedisClient from '@/core/redisCache.config'
+import ResponseTrait from '@/core/responseTrait'
+import { db } from '@/core/firebase.config'
+import { generateCode } from '@/core/helper'
+import { TASK_STATUS_DELETED } from '@/enums/task/TaskStatusEnum'
+import { projectCacheKey } from '@/models/project.model'
+import { taskCacheKey, taskKey } from '@/models/task.model'
 
 const TaskService = {
     get: async (params) => {
         const { key } = params
-        const cacheKey = taskCacheKey.replace(":code", key);
+        const cacheKey = taskCacheKey.replace(':code', key)
 
-        let resData = await RedisClient.get(cacheKey);
-        if (resData) return ResponseTrait.success(resData);
+        let resData = await RedisClient.get(cacheKey)
+        if (resData) return ResponseTrait.success(resData)
 
-        const docRef = collection(db, "task");
-        const docQuery = query(docRef, where("code", "==", key));
-        const docSnap = await getDocs(docQuery);
+        const docRef = collection(db, 'task')
+        const docQuery = query(docRef, where('code', '==', key))
+        const docSnap = await getDocs(docQuery)
 
         if (docSnap.empty) {
-            return ResponseTrait.error("No such Task");
+            return ResponseTrait.error('No such Task')
         }
 
-        resData = docSnap.docs[0].data();
-        await RedisClient.set(taskCacheKey.replace(":code", resData.code), resData)
+        resData = docSnap.docs[0].data()
+        await RedisClient.set(taskCacheKey.replace(':code', resData.code), resData)
 
-        return ResponseTrait.success(resData);
+        return ResponseTrait.success(resData)
     },
     search: async (params) => {
         const { q, user_code, project_code, status, members, teams, start_date, end_date } = params
 
-        const docRef = collection(db, "task");
-        let docQuery = query(docRef, where("project_code", "==", project_code));
+        const docRef = collection(db, 'task')
+        let docQuery = query(docRef, where('project_code', '==', project_code))
 
         if (q && q.trim().length > 0) {
             const attrs = ['code', 'name', 'description']
 
-            docQuery = query(docQuery, or(...attrs.map(a => and(
-                where(a, ">=", q),
-                where(a, "<=", q + '\uf8ff')
-            ))))
+            docQuery = query(docQuery, or(...attrs.map((a) => and(where(a, '>=', q), where(a, '<=', q + '\uf8ff')))))
         }
 
         if (user_code) docQuery = query(docQuery, where('user_code', '==', user_code))
@@ -56,10 +53,10 @@ const TaskService = {
             docQuery = query(docQuery, where('team_codes', 'array-contains-any', teams))
         }
 
-        const docSnap = await getDocs(docQuery);
-        const docData = docSnap.docs.map(doc => doc.data())
+        const docSnap = await getDocs(docQuery)
+        const docData = docSnap.docs.map((doc) => doc.data())
 
-        return ResponseTrait.success(docData);
+        return ResponseTrait.success(docData)
     },
     store: async (params) => {
         const { name, members, teams } = params
@@ -67,16 +64,16 @@ const TaskService = {
         const dateNow = new Date()
         params.code = generateCode(taskKey, dateNow, name)
 
-        const docRef = collection(db, "task");
+        const docRef = collection(db, 'task')
         const docSnap = await addDoc(docRef, {
             ...params,
             // status: TASK_STATUS_PENDING,
             created_at: dateNow
-        });
+        })
 
         const docData = (await getDoc(docSnap)).data()
 
-        if (!docData) return ResponseTrait.error("Error when store Task!")
+        if (!docData) return ResponseTrait.error('Error when store Task!')
 
         await TaskMemberService.update({
             key: docData.code,
@@ -85,21 +82,21 @@ const TaskService = {
         })
 
         const resData = (await getDoc(docSnap)).data()
-        await RedisClient.set(taskCacheKey.replace(":code", resData.code), resData)
+        await RedisClient.set(taskCacheKey.replace(':code', resData.code), resData)
 
         return ResponseTrait.success(resData)
     },
     update: async (params) => {
         const { key } = params
 
-        const docRef = collection(db, "task");
+        const docRef = collection(db, 'task')
 
-        const docQuery = query(docRef, where("code", "==", key))
+        const docQuery = query(docRef, where('code', '==', key))
 
-        const docSnap = await getDocs(docQuery);
+        const docSnap = await getDocs(docQuery)
 
         if (docSnap.empty) {
-            return ResponseTrait.error("No such Milestone!")
+            return ResponseTrait.error('No such Milestone!')
         }
 
         delete params.key
@@ -109,18 +106,18 @@ const TaskService = {
         })
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
-        await RedisClient.set(taskCacheKey.replace(":code", resData.code), resData)
+        await RedisClient.set(taskCacheKey.replace(':code', resData.code), resData)
 
         return resData
     },
     destroy: async (params) => {
         const { key } = params
-        
-        const docRef = collection(db, "task");
 
-        const docQuery = query(docRef, where("code", "==", key))
+        const docRef = collection(db, 'task')
 
-        const docSnap = await getDocs(docQuery);
+        const docQuery = query(docRef, where('code', '==', key))
+
+        const docSnap = await getDocs(docQuery)
 
         if (docSnap.empty) return ResponseTrait.error('No such Milestone!')
 
@@ -131,7 +128,7 @@ const TaskService = {
         })
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
-        await RedisClient.set(taskCacheKey.replace(":code", resData.code), resData)
+        await RedisClient.set(taskCacheKey.replace(':code', resData.code), resData)
 
         return ResponseTrait.success(resData)
     },
@@ -139,11 +136,11 @@ const TaskService = {
     updateByMember: async (params) => {
         const { key, status } = params
 
-        const docRef = collection(db, "task");
+        const docRef = collection(db, 'task')
 
-        const docQuery = query(docRef, where("code", "==", key))
+        const docQuery = query(docRef, where('code', '==', key))
 
-        const docSnap = await getDocs(docQuery);
+        const docSnap = await getDocs(docQuery)
 
         if (docSnap.empty) return ResponseTrait.error('No such Space!')
 
@@ -157,64 +154,61 @@ const TaskService = {
         await updateDoc(docSnap.docs[0].ref, dataUpdate)
 
         const resData = (await getDoc(docSnap.docs[0].ref)).data()
-        await RedisClient.set(taskCacheKey.replace(":code", resData.code), resData)
+        await RedisClient.set(taskCacheKey.replace(':code', resData.code), resData)
 
         return ResponseTrait.success(resData)
     }
-};
+}
 
 const TaskMemberService = {
     search: async (params) => {
         const { key, q } = params
 
-        const cacheKey = projectCacheKey.replace(":code", key)
+        const cacheKey = projectCacheKey.replace(':code', key)
         let entData = RedisClient.get(cacheKey)
 
         if (!entData) {
-            const docRef = collection(db, "project");
-            const docQuery = query(docRef, where("code", "==", key))
-            const docSnap = await getDocs(docQuery);
+            const docRef = collection(db, 'project')
+            const docQuery = query(docRef, where('code', '==', key))
+            const docSnap = await getDocs(docQuery)
 
             if (docSnap.empty) {
-                return ResponseTrait.error("No such Project")
+                return ResponseTrait.error('No such Project')
             }
 
             entData = docSnap.docs[0].data()
         }
 
-        const memberCodes = entData.member_codes
+        const memberCodes = entData.memberCodes
 
-        const docRef = collection(db, "user");
-        let docQuery = query(docRef, where("code", "in", memberCodes));
+        const docRef = collection(db, 'user_info')
+        let docQuery = query(docRef, where('code', 'in', memberCodes))
 
         if (q && q.trim().length > 0) {
             const attrs = ['code', 'name', 'description']
 
-            docQuery = query(docQuery, or(...attrs.map(a => and(
-                where(a, ">=", q),
-                where(a, "<=", q + '\uf8ff')
-            ))))
+            docQuery = query(docQuery, or(...attrs.map((a) => and(where(a, '>=', q), where(a, '<=', q + '\uf8ff')))))
         }
 
-        const memberSnap = await getDocs(docQuery);
+        const memberSnap = await getDocs(docQuery)
 
-        const resData = memberSnap.docs.map(doc => doc.data())
+        const resData = memberSnap.docs.map((doc) => doc.data())
 
-        return ResponseTrait.success(resData);
+        return ResponseTrait.success(resData)
     },
     update: async (params) => {
         const { key, members, teams } = params
 
-        const docRef = collection(db, "task");
-        const docQuery = query(docRef, where("code", "==", key))
-        const docSnap = await getDocs(docQuery);
+        const docRef = collection(db, 'task')
+        const docQuery = query(docRef, where('code', '==', key))
+        const docSnap = await getDocs(docQuery)
 
         if (docSnap.empty) {
-            return ResponseTrait.error("No such Task!")
+            return ResponseTrait.error('No such Task!')
         }
 
-        const memberCodes = members.map(m => m.code)
-        const teamCodes = teams.map(m => m.code)
+        const memberCodes = members.map((m) => m.code)
+        const teamCodes = teams.map((m) => m.code)
 
         const resData = await updateDoc(docSnap.docs[0].ref, {
             members: members,
@@ -227,6 +221,6 @@ const TaskMemberService = {
     }
 }
 
-export default TaskService;
+export default TaskService
 
 export { TaskMemberService }
