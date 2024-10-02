@@ -1,5 +1,6 @@
 import JoiCustom from "@/core/joiCustom.config";
 import ProjectStatusEnumArr from "@/enums/project/ProjectStatusEnum";
+import ProjectCurrencyEnumArr from "@/enums/project/ProjectCurrencyEnum";
 
 const projectKey = "project";
 const projectCacheKey = "project_:code_";
@@ -40,9 +41,13 @@ const projectStoreSchema = JoiCustom.object({
     .integer()
     .valid(...ProjectStatusEnumArr)
     .required(),
-  type: JoiCustom.number().integer().required(),
-  is_status_custom: JoiCustom.bool().required().default(0),
-  has_element_status_custom: JoiCustom.bool().required().default(0),
+  currency: JoiCustom.number()
+    .integer()
+    .valid(...ProjectCurrencyEnumArr)
+    .required(),
+  type: JoiCustom.number().integer().optional(),
+  is_status_custom: JoiCustom.bool().default(0).optional(),
+  has_element_status_custom: JoiCustom.bool().default(0).optional(),
   description: JoiCustom.string().max(200).required(),
   begin_date: JoiCustom.date()
     .format("YYYY-MM-DD")
